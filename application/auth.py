@@ -1,5 +1,6 @@
 import sys
 import os
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app import create_app
@@ -9,12 +10,13 @@ from application.models import User
 
 app = create_app()
 
+
 @app.route("/", methods=["GET"])
 def home():
-    return "hello world"
+    return render_template("index.html")
 
 
-@app.route("/login", methods=["GET","POST"])
+@app.route("/login", methods=["GET", "POST"])
 def login_post():
     data = request.get_json()
     username = data.get("username")
