@@ -1,19 +1,14 @@
 from flask import Flask
-from extensions import db
-import views
+from application.models import db
+from config import DevelopmentConfig
 
 
 def create_app():
     app = Flask(__name__)
-
-    app.config["SECRET_KEY"] = "this_is_secret_key"
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    app.config["SECURITY_PASSWORD_SALT"] = "this_is_salt"
-
+    app.config.from_object(DevelopmentConfig)
     db.init_app(app)
-
     with app.app_context():
+        import application.auth
         from application.models import User
 
         db.create_all()
@@ -30,10 +25,10 @@ def create_app():
             db.session.add(admin)
             db.session.commit()
 
-    views.create_view(app)
     return app
 
 
-if __name__ == "__main__":
-    app = create_app()
-    app.run(debug=True)
+# app = create_app()
+
+# if __name__ == "__main__":
+#     app.run(debug=True)

@@ -1,4 +1,8 @@
-from extensions import db
+from flask_sqlalchemy import SQLAlchemy
+# from flask import current_app as app
+from werkzeug.security import generate_password_hash
+
+db = SQLAlchemy()
 
 
 class User(db.Model):
