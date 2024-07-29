@@ -1,7 +1,13 @@
 import router from "./router.js";
+import Navbar from "../components/Navbar.js";
 
 new Vue({
   el: "#app",
-  template: `<router-view/>`,
+  components: { Navbar },
+  template: `
+  <div>
+  <Navbar/>
+  <router-view/>
+  </div>`,
   router,
 });
