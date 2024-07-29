@@ -34,8 +34,13 @@ export default {
           password: this.password,
         }),
       });
+      const data = await res.json();
       if (res.ok) {
-        console.log("logged in");
+        console.log(data);
+        this.$router.push("/");
+      } else {
+        console.log(data);
+        this.$router.push("/register");
       }
     },
   },
