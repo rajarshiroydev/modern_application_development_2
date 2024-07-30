@@ -49,7 +49,7 @@ export default {
       const data = await res.json();
       if (res.ok) {
         console.log(data);
-        this.$router.push("/");
+        this.$router.push("/login");
       } else {
         console.log(data);
       }

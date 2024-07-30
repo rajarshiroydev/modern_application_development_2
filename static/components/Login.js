@@ -24,7 +24,7 @@ export default {
   methods: {
     async login_post() {
       const url = window.location.origin;
-      const res = await fetch(url + "/login", {
+      const response = await fetch(url + "/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -34,8 +34,8 @@ export default {
           password: this.password,
         }),
       });
-      const data = await res.json();
-      if (res.ok) {
+      const data = await response.json();
+      if (response.ok) {
         console.log(data);
         this.$router.push("/");
       } else {

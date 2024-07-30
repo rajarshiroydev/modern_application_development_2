@@ -1,34 +1,19 @@
 from flask import Flask
-from application.models import db
-from config import DevelopmentConfig
+
+# create app
+app = Flask(__name__)
+
+# configure app
+app.config["DEBUG"] = True
+app.config["SECRET_KEY"] = "should-not-be-seen"
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
+app.config["SECURITY_PASSWORD_SALT"] = "salty-password"
+app.config["SECURITY_TOKEN_AUTHENTICATION_HEADER"] = "Authentication-Token"
+
+# importing models and routes
+import application.models
+import application.routes
 
 
-def create_app():
-    app = Flask(__name__)
-    app.config.from_object(DevelopmentConfig)
-    db.init_app(app)
-    with app.app_context():
-        import application.auth
-        from application.models import User
-
-        db.create_all()
-
-        # if an admin does not exist
-        admin = User.query.filter_by(is_admin=True).first()
-        if not admin:
-            from werkzeug.security import generate_password_hash
-
-            password_hash = generate_password_hash("admin")
-            admin = User(
-                name="admin", username="admin", passhash=password_hash, is_admin=True
-            )
-            db.session.add(admin)
-            db.session.commit()
-
-    return app
-
-
-# app = create_app()
-
-# if __name__ == "__main__":
-#     app.run(debug=True)
+if __name__ == "__main__":
+    app.run(debug=True)
