@@ -55,21 +55,6 @@ def auth_required(func):
     return inner
 
 
-# Decorator for authentication of admin
-# def admin_required(func):
-#     @wraps(func)
-#     @jwt_required()
-#     def inner(*args, **kwargs):
-#         user_id = get_jwt_identity()
-#         user = User.query.get(user_id)
-#         if not user or not user.is_admin:
-#             flash("You are not authorized to access this page")
-#             return redirect(url_for("index"))
-#         return func(*args, **kwargs)
-
-#     return inner
-
-
 # ----------------------------Home------------------------------------#
 
 
@@ -142,28 +127,29 @@ def login_post():
 def admin():
     sections = Section.query.all()
     section_data = [
-        {"name": section.name, "size": len(section.books)} for section in sections
+        {"id": section.id, "name": section.name, "size": len(section.books)}
+        for section in sections
     ]
     return jsonify(section_data), 200
 
 
 @app.route("/section/add")
-@auth_required
+# @auth_required
 def add_section():
     return render_template("/section/add.html")
 
 
 @app.route("/section/add", methods=["POST"])
+# @auth_required
 def add_section_post():
-    name = request.form.get("name")
+    data = request.get_json()
+    name = data.get("name")
 
     if not name:
-        flash("Please fill out all the fields")
-        return redirect(url_for("add_section"))
+        return jsonify({"error": "Please fill out all the fields"}), 400
 
     section = Section(name=name)
     db.session.add(section)
     db.session.commit()
 
-    flash("Section created successfully")
-    return redirect(url_for("admin"))
+    return jsonify({"message": "Section created successfully"}), 201

@@ -38,7 +38,7 @@ export default {
       if (data.access_token) {
         sessionStorage.setItem("access_token", data.access_token);
         this.$router.push("/");
-      } else {
+      } else {d
         console.error("Login failed");
       }
     },
