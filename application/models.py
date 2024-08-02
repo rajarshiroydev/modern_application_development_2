@@ -11,6 +11,7 @@ class User(db.Model):
     username = db.Column(db.String(32), unique=True)
     passhash = db.Column(db.String(256), nullable=False)
     is_admin = db.Column(db.Boolean, nullable=False, default=False)
+    role = db.Column(db.String(64))
 
 
 class Section(db.Model):
@@ -74,7 +75,11 @@ with app.app_context():
     if not admin:
         password_hash = generate_password_hash("admin")
         admin = User(
-            name="admin", username="admin", passhash=password_hash, is_admin=True
+            name="admin",
+            username="admin",
+            passhash=password_hash,
+            is_admin=True,
+            role="admin",
         )
     db.session.add(admin)
     db.session.commit()

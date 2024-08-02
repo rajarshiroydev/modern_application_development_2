@@ -35,12 +35,11 @@ export default {
         }),
       });
       const data = await response.json();
-      if (response.ok) {
-        console.log(data);
+      if (data.access_token) {
+        sessionStorage.setItem("access_token", data.access_token);
         this.$router.push("/");
       } else {
-        console.log(data);
-        this.$router.push("/register");
+        console.error("Login failed");
       }
     },
   },
