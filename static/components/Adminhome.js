@@ -33,14 +33,30 @@ export default {
             </tr>
           </tbody>
         </table>
-        <button @click="add_section" class="btn btn-success">
+        <button class="btn btn-success">
           Add Section
         </button>
       </div>`,
+  data() {
+    return {
+      sections: [],
+    };
+  },
   methods: {
-    add_section() {
-      console.log("add_section");
-      this.$router.push("/section/add");
+    fetch_section() {
+      fetch("/admin", {
+        method: "GET",
+        headers: {
+          "Authentication-Token": localStorage.getItem("auth-token"),
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          this.sections = data;
+        });
     },
+  },
+  created() {
+    this.fetch_section();
   },
 };

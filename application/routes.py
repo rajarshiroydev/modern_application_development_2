@@ -123,7 +123,7 @@ def login_post():
 
 
 @app.route("/admin")
-@auth_required
+# @auth_required
 def admin():
     sections = Section.query.all()
     section_data = [
