@@ -1,10 +1,10 @@
 from flask import Flask
 from flask_jwt_extended import JWTManager
-from flask_cors import CORS
+# from flask_cors import CORS
 
 # create app
 app = Flask(__name__)
-CORS(app)
+# CORS(app)
 
 # configure app
 app.config["DEBUG"] = True

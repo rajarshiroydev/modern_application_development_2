@@ -17,15 +17,15 @@ export default {
               <td class="font">{{ section.name }}</td>
               <td class="font">{{ section.size }}</td>
               <td>
-                <button @click="showSection(section.id)" class="btn btn-primary">
+                <button @click="show_section(section.id)" class="btn btn-primary">
                   <i class="fas fa-search"></i>
                   Show
                 </button>
-                <button @click="editSection(section.id)" class="btn btn-success">
+                <button @click="edit_section(section.id)" class="btn btn-success">
                   <i class="fas fa-edit"></i>
                   Edit
                 </button>
-                <button @click="deleteSection(section.id)" class="btn btn-danger">
+                <button @click="delete_section(section.id)" class="btn btn-danger">
                   <i class="fas fa-trash"></i>
                   Delete
                 </button>
@@ -33,23 +33,31 @@ export default {
             </tr>
           </tbody>
         </table>
-        <button class="btn btn-success">
+        <button class="btn btn-success" @click="add_section">
           Add Section
         </button>
-      </div>`,
+      </div>
+      `,
   data() {
     return {
       sections: [],
     };
   },
   methods: {
+    show_section() {
+      this.$router.push(`/section/${id}/show`);
+    },
+    edit_section(id) {
+      this.$router.push(`/section/${id}/edit`);
+    },
+    delete_section(id) {
+      this.$router.push(`/section/${id}/delete`);
+    },
+    add_section() {
+      this.$router.push("/section/add");
+    },
     fetch_section() {
-      fetch("/admin", {
-        method: "GET",
-        headers: {
-          "Authentication-Token": localStorage.getItem("auth-token"),
-        },
-      })
+      fetch("/admin")
         .then((res) => res.json())
         .then((data) => {
           this.sections = data;

@@ -1,3 +1,4 @@
+import jwt
 import datetime
 from app import app
 from functools import wraps
@@ -10,7 +11,6 @@ from flask_jwt_extended import (
     get_jwt_identity,
     JWTManager,
 )
-import jwt
 # sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
@@ -153,3 +153,48 @@ def add_section_post():
     db.session.commit()
 
     return jsonify({"message": "Section created successfully"}), 201
+
+
+@app.route("/api/section/<int:id>", methods=["GET"])
+# @admin_required
+def get_section(id):
+    section = Section.query.get(id)
+    if not section:
+        return jsonify({"error": "Section does not exist"}), 404
+    return jsonify(
+        {
+            "id": section.id,
+            "name": section.name,
+            # "books": [
+            #     book.to_dict() for book in section.books
+            # ],  # Adjust based on your data structure
+        }
+    )
+
+
+@app.route("/api/section/<int:id>", methods=["PUT"])
+# @admin_required
+def update_section(id):
+    data = request.get_json()
+    section = Section.query.get(id)
+    if not section:
+        return jsonify({"error": "Section does not exist"}), 404
+
+    if "name" in data:
+        section.name = data["name"]
+    # Add more fields to update as needed
+
+    db.session.commit()
+    return jsonify({"message": "Section updated successfully"})
+
+
+@app.route("/api/section/<int:id>", methods=["DELETE"])
+# @login_required
+def delete_section(id):
+    section = Section.query.get(id)
+    if not section:
+        return jsonify({"error": "Section does not exist"}), 404
+
+    db.session.delete(section)
+    db.session.commit()
+    return jsonify({"message": "Section deleted successfully"}), 200
