@@ -51,21 +51,39 @@ export default {
         console.error("Error during logout:", error);
       }
     },
-  },
-  created() {
-    if (this.accessToken) {
-      const decodedToken = this.decodeToken(this.accessToken);
-      this.role = decodedToken.role || null;
-    }
-  },
-  watch: {
-    accessToken(newToken) {
-      if (newToken) {
-        const decodedToken = this.decodeToken(newToken);
+    decodeToken(token) {
+      try {
+        const base64Url = token.split(".")[1];
+        const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+        const jsonPayload = decodeURIComponent(
+          atob(base64)
+            .split("")
+            .map(function (c) {
+              return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+            })
+            .join("")
+        );
+        return JSON.parse(jsonPayload);
+      } catch (error) {
+        console.error("Failed to decode token:", error);
+        return {};
+      }
+    },
+    updateRoleFromToken(token) {
+      if (token) {
+        const decodedToken = this.decodeToken(token);
         this.role = decodedToken.role || null;
       } else {
         this.role = null;
       }
+    },
+  },
+  created() {
+    this.updateRoleFromToken(this.accessToken);
+  },
+  watch: {
+    accessToken(newToken) {
+      this.updateRoleFromToken(newToken);
     },
   },
 };
