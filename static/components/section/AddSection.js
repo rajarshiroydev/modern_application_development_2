@@ -1,6 +1,6 @@
 export default {
   template: `
-      <div>
+    <div>
       <form class="form" @submit.prevent="create_section">
         <div class="form-group">
           <label for="name" class="form-label">Section Name</label>
@@ -18,7 +18,7 @@ export default {
         </button>
       </form>
     </div>
-      `,
+  `,
   data() {
     return {
       sectionName: "",
@@ -28,10 +28,11 @@ export default {
     async create_section() {
       try {
         const url = window.location.origin;
-        const response = await fetch(url + "/section/add", {
+        const response = await fetch(`${url}/section/add`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${sessionStorage.getItem("access_token")}`, // Add token to headers
           },
           body: JSON.stringify({
             name: this.sectionName,
@@ -41,7 +42,8 @@ export default {
         if (response.ok) {
           const data = await response.json();
           console.log(data);
-          this.$router.push("/admin");
+          this.sectionName = ""; // Reset input field
+          this.$router.push("/adminhome"); // Navigate to admin home page
         } else {
           const text = await response.text(); // Get raw response text
           let data;

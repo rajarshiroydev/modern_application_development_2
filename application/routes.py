@@ -1,65 +1,55 @@
-import jwt
-import datetime
 from app import app
+from datetime import datetime, timedelta
 from functools import wraps
-from application.models import db, Section, User, Books, Cart, Issued, Feedbacks
-from werkzeug.security import check_password_hash, generate_password_hash
 from flask import request, jsonify, render_template, session, redirect, url_for, flash
 from flask_jwt_extended import (
+    JWTManager,
     create_access_token,
     jwt_required,
     get_jwt_identity,
-    JWTManager,
+    set_access_cookies,
+    unset_jwt_cookies,
 )
-# sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from application.models import db, Section, User, Books, Cart, Issued, Feedbacks
+from werkzeug.security import check_password_hash, generate_password_hash
 
+# Create JWTManager instance
+jwt = JWTManager()
 
 # ----------------------------Role based access------------------------------------#
-
-SECRET_KEY = "mad2_project"
-
-
-def encode_user_data(user_id, role):
-    payload = {
-        "user_id": user_id,
-        "role": role,
-        "exp": datetime.datetime.utcnow()
-        + datetime.timedelta(hours=1),  # Token expiration time
-    }
-
-    # Encode the payload to create the JWT token
-    token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
-    return token
 
 
 def auth_required(func):
     @wraps(func)
-    def inner(*args, **kwargs):
-        token = session.get("jwt_token")
-        if token:
-            try:
-                decoded_token = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
-
-                user_id = decoded_token.get("user_id")
-                role = decoded_token.get("role")
-
-                return func(*args, **kwargs)
-
-            except jwt.ExpiredSignatureError:
-                return redirect(url_for("login"))
-            except jwt.InvalidTokenError:
-                return redirect(url_for("login"))
+    @jwt_required()
+    def wrapper(*args, **kwargs):
+        # You have to pass identity to get_jwt_identity and check it
+        identity = get_jwt_identity()
+        if identity:
+            return func(*args, **kwargs)
         else:
-            return redirect(url_for("login"))
+            return jsonify({"message": "Unauthorized access"}), 401
 
-    return inner
+    return wrapper
+
+
+def admin_required(func):
+    @wraps(func)
+    @jwt_required()
+    def wrapper(*args, **kwargs):
+        identity = get_jwt_identity()
+        if identity and identity.get("role") == "admin":
+            return func(*args, **kwargs)
+        else:
+            return jsonify({"message": "Unauthorized access"}), 403
+
+    return wrapper
 
 
 # ----------------------------Home------------------------------------#
 
 
 @app.route("/", methods=["GET"])
-# @auth_required
 def home():
     return render_template("index.html")
 
@@ -67,7 +57,7 @@ def home():
 # ----------------------------Register, Login and Logout------------------------------------#
 
 
-@app.route("/register", methods=["GET", "POST"])
+@app.route("/register", methods=["POST"])
 def register_post():
     data = request.get_json()
     name = data.get("name")
@@ -76,55 +66,52 @@ def register_post():
     confirm_password = data.get("confirm_password")
 
     if not name or not username or not password or not confirm_password:
-        flash("Please fill out all the fields")
         return jsonify({"error": "Please fill out all the fields"}), 400
 
     if password != confirm_password:
-        flash("Passwords do not match")
         return jsonify({"error": "Passwords do not match"}), 400
 
     user = User.query.filter_by(username=username).first()
-
     if user:
-        flash("User already exists")
         return jsonify({"error": "User already exists"}), 409
 
     password_hash = generate_password_hash(password)
     new_user = User(username=username, passhash=password_hash, name=name, role="user")
     db.session.add(new_user)
     db.session.commit()
-    flash("Registered successfully.")
     return jsonify({"message": "Registered successfully."}), 201
 
 
 @app.route("/login", methods=["POST"])
-def login_post():
+def login():
     data = request.get_json()
     username = data.get("username")
     password = data.get("password")
-
-    if not username or not password:
-        return jsonify({"error": "Please fill out all the fields"}), 400
-
     user = User.query.filter_by(username=username).first()
 
-    if not user or not check_password_hash(user.passhash, password):
-        return jsonify({"error": "Invalid credentials"}), 401
+    if user is None or not check_password_hash(user.passhash, password):
+        return jsonify({"message": "Invalid credentials"}), 401
 
-    if user:
-        access_token = create_access_token(identity=user.id)
-        return jsonify(access_token=access_token)
+    access_token = create_access_token(identity={"user_id": user.id, "role": user.role})
+    response = jsonify({"access_token": access_token, "role": user.role})
+    set_access_cookies(response, access_token)
+    return response
 
-    flash("Registered successfully.")
-    return jsonify({"message": "Logged in successfully."}), 201
+
+@app.route("/logout", methods=["POST"])
+@jwt_required()
+def logout():
+    response = jsonify({"message": "Successfully logged out"})
+    unset_jwt_cookies(response)
+    return response, 200
 
 
 # ------------------------------Admin & Sections------------------------------------#
 
 
-@app.route("/admin")
-# @auth_required
-def admin():
+@app.route("/adminhome")
+@admin_required
+def admin_home():
     sections = Section.query.all()
     section_data = [
         {"id": section.id, "name": section.name, "size": len(section.books)}
@@ -133,14 +120,25 @@ def admin():
     return jsonify(section_data), 200
 
 
-@app.route("/section/add")
-# @auth_required
+@app.route("/unauthorized")
+def unauthorized():
+    return jsonify({"message": "Unauthorized access"}), 403
+
+
+@app.route("/userhome")
+@auth_required
+def user_home():
+    return "hello, world"
+
+
+@app.route("/section/add", methods=["GET"])
+@auth_required
 def add_section():
     return render_template("/section/add.html")
 
 
 @app.route("/section/add", methods=["POST"])
-# @auth_required
+@auth_required
 def add_section_post():
     data = request.get_json()
     name = data.get("name")
@@ -156,7 +154,7 @@ def add_section_post():
 
 
 @app.route("/api/section/<int:id>", methods=["GET"])
-# @admin_required
+@admin_required
 def get_section(id):
     section = Section.query.get(id)
     if not section:
@@ -165,15 +163,12 @@ def get_section(id):
         {
             "id": section.id,
             "name": section.name,
-            # "books": [
-            #     book.to_dict() for book in section.books
-            # ],  # Adjust based on your data structure
         }
     )
 
 
 @app.route("/api/section/<int:id>", methods=["PUT"])
-# @admin_required
+@admin_required
 def update_section(id):
     data = request.get_json()
     section = Section.query.get(id)
@@ -182,14 +177,13 @@ def update_section(id):
 
     if "name" in data:
         section.name = data["name"]
-    # Add more fields to update as needed
 
     db.session.commit()
     return jsonify({"message": "Section updated successfully"})
 
 
 @app.route("/api/section/<int:id>", methods=["DELETE"])
-# @login_required
+@admin_required
 def delete_section(id):
     section = Section.query.get(id)
     if not section:

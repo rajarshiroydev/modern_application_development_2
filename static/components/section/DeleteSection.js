@@ -1,19 +1,22 @@
 export default {
   template: `
-      <div>
-        <h1 class="display-1">Delete Section</h1>
-        <p v-if="sectionBooksCount > 0" class="f-3">
-          This section contains books. If you delete this section, the books will be deleted too.
-        </p>
-        <p class="f-3">Are you sure you want to delete {{ sectionName }} section?</p>
-        <form @submit.prevent="delete_section" class="form">
-          <button type="submit" class="btn btn-danger">
-            <i class="fas fa-trash"></i>
-            Delete
-          </button>
-        </form>
-      </div>
-    `,
+    <div>
+      <h1 class="display-1">Delete Section</h1>
+      <p v-if="sectionBooksCount > 0" class="f-3">
+        This section contains books. If you delete this section, the books will be deleted too.
+      </p>
+      <p class="f-3">Are you sure you want to delete {{ sectionName }} section?</p>
+      <form @submit.prevent="delete_section" class="form">
+        <button type="submit" class="btn btn-danger">
+          <i class="fas fa-trash"></i>
+          Delete
+        </button>
+        <button type="button" class="btn btn-secondary" @click="cancel_deletion">
+          Cancel
+        </button>
+      </form>
+    </div>
+  `,
   data() {
     return {
       sectionName: "",
@@ -24,15 +27,19 @@ export default {
     async fetch_section() {
       try {
         const url = window.location.origin;
-        const response = await fetch(
-          `${url}/api/section/${this.$route.params.id}`
-        );
+        const response = await fetch(`${url}/api/section/${this.$route.params.id}`, {
+          headers: {
+            "Authorization": `Bearer ${sessionStorage.getItem("access_token")}`,
+          },
+        });
+
         if (response.ok) {
           const data = await response.json();
           this.sectionName = data.name;
-        //   this.sectionBooksCount = data.books.length;
+          this.sectionBooksCount = data.books ? data.books.length : 0;
         } else {
-          alert("Failed to fetch section data.");
+          const errorData = await response.json();
+          alert(errorData.error || "Failed to fetch section data.");
         }
       } catch (error) {
         console.error("Error fetching section data:", error);
@@ -40,42 +47,36 @@ export default {
       }
     },
     async delete_section() {
+      if (!confirm(`Are you sure you want to delete the section "${this.sectionName}"? This action cannot be undone.`)) {
+        return;
+      }
+
       try {
         const url = window.location.origin;
-        const response = await fetch(
-          `${url}/api/section/${this.$route.params.id}`,
-          {
-            method: "DELETE",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
+        const response = await fetch(`${url}/api/section/${this.$route.params.id}`, {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${sessionStorage.getItem("access_token")}`,
+          },
+        });
 
         if (response.ok) {
           const data = await response.json();
           console.log(data);
-          this.$router.push("/admin");
+          this.$router.push("/adminhome");
         } else {
-          const text = await response.text(); // Get raw response text
-          let data;
-          try {
-            data = JSON.parse(text); // Try to parse it as JSON
-          } catch (error) {
-            console.error("Failed to parse JSON:", text);
-            alert(
-              "An error occurred while deleting the section. See console for details."
-            );
-            return;
-          }
-          console.error(data);
-          alert(data.error || "An error occurred");
+          const errorData = await response.json();
+          alert(errorData.error || "An error occurred while deleting the section.");
         }
       } catch (error) {
-        console.error("Error:", error);
+        console.error("Error deleting section:", error);
         alert("An error occurred while deleting the section.");
       }
     },
+    cancel_deletion() {
+      this.$router.push("/adminhome");
+    }
   },
   created() {
     this.fetch_section();
