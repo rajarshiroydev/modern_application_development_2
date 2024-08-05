@@ -12,10 +12,11 @@ from flask_jwt_extended import (
 )
 from application.models import db, Section, User, Books, Cart, Issued, Feedbacks
 from werkzeug.security import check_password_hash, generate_password_hash
+from flask_caching import Cache
 
 # Create JWTManager instance
 jwt = JWTManager()
-
+cache = Cache(app)
 # ----------------------------Role based access------------------------------------#
 
 
@@ -111,6 +112,7 @@ def logout():
 
 @app.route("/adminhome")
 @admin_required
+@cache.cached(300)
 def admin_home():
     sections = Section.query.all()
     section_data = [
