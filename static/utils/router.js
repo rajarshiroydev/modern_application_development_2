@@ -53,7 +53,7 @@ router.beforeEach((to, from, next) => {
   if (to.meta.requiresAuth && !isLoggedIn) {
     next("/login");
   } else if (to.meta.requiresAuth && to.meta.role !== userRole) {
-    next("/login"); // Or redirect to a specific unauthorized page
+    next("/adminhome"); // Or redirect to a specific unauthorized page
   } else {
     next();
   }
