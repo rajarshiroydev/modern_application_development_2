@@ -11,7 +11,7 @@ class User(db.Model):
     username = db.Column(db.String(32), unique=True)
     passhash = db.Column(db.String(256), nullable=False)
     is_admin = db.Column(db.Boolean, nullable=False, default=False)
-    role = db.Column(db.String(64))
+    role = db.Column(db.String(64), nullable=False)
 
 
 class Section(db.Model):
