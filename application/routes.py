@@ -398,6 +398,7 @@ def add_to_request(book_id):
             user_id=user_id,
             book_id=book_id,
             username=username,
+            duration=duration,  # Save the duration
         )
         db.session.add(new_request_item)
         db.session.commit()

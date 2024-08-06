@@ -39,6 +39,7 @@ class Request(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     username = db.Column(db.String(32), db.ForeignKey("user.username"), nullable=False)
     book_id = db.Column(db.Integer, db.ForeignKey("books.id"), nullable=False)
+    duration = db.Column(db.Integer, nullable=False)  # Duration in days
 
 
 class Issued(db.Model):
