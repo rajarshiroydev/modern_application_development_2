@@ -2,10 +2,10 @@ export default {
   template: `
     <div>
       <div v-if="sections && sections.length > 0">
-        <div class="sections-list">
+        <div style="display: flex; flex-direction: column; justify-content: left;">
           <div v-for="section in sections" :key="section.id">
             <h2 style="margin-top: 20px;">{{ section.name }}</h2>
-            <div class="books" style="margin-bottom: 20px;">
+            <div style="padding: 0; display: flex; flex-wrap: wrap; justify-content: left; margin-bottom: 20px;">
               <div v-for="book in section.books" :key="book.id">
                 <div class="card" style="width: 18rem; margin-left: 0; margin-right: 20px">
                   <img :src="'https://picsum.photos/200/200'" class="card-img-top" :alt="book.name">
@@ -21,11 +21,10 @@ export default {
                       </a>
                     </div>
                     <br>
-                    <strong>Choose Duration</strong>
+                    <strong>Choose Duration in Days</strong>
                     <form @submit.prevent="addToCart(book.id)">
                       <div class="input-group">
-                        <label for="duration" class="days">Days</label>
-                        <input type="number" v-model.number="duration" id="duration" class="form-control" min="1" style="border-radius: 0px 7px 7px 0px;">
+                        <input type="number" v-model.number="duration" id="duration" class="form-control" min="1" style="border-radius: 7px 7px 7px 7px;">
                       </div>
                       <input type="submit" value="Get Book" class="btn btn-success" style="margin-top: 10px;">
                     </form>

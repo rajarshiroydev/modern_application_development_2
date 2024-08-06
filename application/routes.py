@@ -72,65 +72,7 @@ def get_all_sections():
         }
         for section in sections
     ]
-
     return jsonify({"sections": section_data})
-
-
-# @app.route("/api/sections", methods=["GET"])
-# @auth_required
-# def get_sections():
-#     parameter = request.args.get("parameter")
-#     query = request.args.get("query")
-
-#     parameters = {
-#         "section_name": "Section Name",
-#         "book_name": "Book Name",
-#         "author_name": "Author Name",
-#     }
-
-#     sections = Section.query.filter(Section.books.any()).all()
-
-#     if parameter == "section_name":
-#         sections = Section.query.filter(Section.name.ilike(f"%{query}%")).all()
-#     elif parameter == "book_name":
-#         sections = [
-#             section
-#             for section in Section.query.all()
-#             if any(book for book in section.books if query.lower() in book.name.lower())
-#         ]
-#     elif parameter == "author_name":
-#         sections = [
-#             section
-#             for section in Section.query.all()
-#             if any(
-#                 book for book in section.books if query.lower() in book.author.lower()
-#             )
-#         ]
-
-#     # Filter books within each section
-#     for section in sections:
-#         if parameter == "book_name":
-#             section.books = [
-#                 book for book in section.books if query.lower() in book.name.lower()
-#             ]
-#         elif parameter == "author_name":
-#             section.books = [
-#                 book for book in section.books if query.lower() in book.author.lower()
-#             ]
-
-#     section_data = [
-#         {
-#             "id": section.id,
-#             "name": section.name,
-#             "books": [
-#                 {"id": book.id, "name": book.name, "author": book.author}
-#                 for book in section.books
-#             ],
-#         }
-#         for section in sections
-#     ]
-
-#     return jsonify({"sections": section_data, "parameters": parameters, "query": query})
 
 
 # ----------------------------Register, Login and Logout------------------------------------#
