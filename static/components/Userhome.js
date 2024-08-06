@@ -82,15 +82,28 @@ export default {
           },
           body: JSON.stringify({ duration: this.duration }),
         });
+        const data = await response.json();
         if (response.ok) {
           alert("Book requested successfully");
         } else {
-          const data = await response.json();
-          console.error(
-            "Error requesting for book:",
-            data.message || "Unknown error"
-          );
-          alert("Failed to request book.");
+          if (response.status === 403) {
+            alert(data.error || "You cannot request for more than 5 books.");
+          } else if (response.status === 404) {
+            alert(data.error || "Book does not exist.");
+          } else if (response.status === 400) {
+            alert(data.error || "Invalid duration.");
+          } else if (response.status === 409) {
+            alert(
+              data.error ||
+                "You already have this book in your library or have requested it."
+            );
+          } else {
+            console.error(
+              "Error requesting for book:",
+              data.message || "Unknown error"
+            );
+            alert("Failed to request book.");
+          }
         }
       } catch (error) {
         console.error("Error requesting for book:", error);
