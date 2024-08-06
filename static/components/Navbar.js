@@ -1,12 +1,12 @@
 export default {
   template: `
-    <nav>
-      <router-link to="/" v-if="!isLoggedIn">Home</router-link>
-      <router-link to="/login" v-if="!isLoggedIn">Login</router-link>
-      <router-link to="/register" v-if="!isLoggedIn">Register</router-link>
-      <router-link to="/adminhome" v-if="isAdmin">Admin Home</router-link>
-      <router-link to="/userhome" v-if="isUser">User Home</router-link>
-      <a href="#" @click.prevent="logout" v-if="isLoggedIn">Logout</a>
+    <nav style="background-color: #f8f9fa; padding: 10px 20px; border-radius: 5px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+      <router-link to="/" v-if="!isLoggedIn" style="font-size: 20px; color: black; margin-right: 20px;">Home</router-link>
+      <router-link to="/login" v-if="!isLoggedIn" style="font-size: 20px; color: black; margin-right: 20px;">Login</router-link>
+      <router-link to="/register" v-if="!isLoggedIn" style="font-size: 20px; color: black; margin-right: 20px;">Register</router-link>
+      <router-link to="/adminhome" v-if="isAdmin" style="font-size: 20px; color: black; margin-right: 20px;">Admin Home</router-link>
+      <router-link to="/userhome" v-if="isUser" style="font-size: 20px; color: black; margin-right: 20px;">User Home</router-link>
+      <a href="#" @click.prevent="logout" v-if="isLoggedIn" style="font-size: 20px; color: black;">Logout</a>
     </nav>
   `,
   data() {
