@@ -14,6 +14,7 @@ import ShowSection from "../components/section/ShowSection.js";
 import AddBook from "../components/book/AddBook.js";
 import EditBook from "../components/book/EditBook.js";
 import ShowBook from "../components/book/ShowBook.js";
+import UserRequests from "../components/UserRequests.js";
 
 Vue.use(VueRouter);
 
@@ -64,6 +65,11 @@ const routes = [
   {
     path: "/api/book/:id/show",
     component: ShowBook,
+  },
+  {
+    path: "/requests",
+    component: UserRequests,
+    meta: { requiresAuth: true, role: "admin" },
   },
 ];
 

@@ -358,9 +358,28 @@ def delete_book(id):
 # ----------------------------Requests and Issued------------------------------------#
 
 
+@app.route("/requests", methods=["GET"])
+@admin_required
+def requests():
+    requests = Request.query.all()
+    request_list = [
+        {
+            "id": req.id,
+            "user_id": req.user_id,
+            "username": req.username,
+            "book": {
+                "name": req.book.name,
+                "author": req.book.author,
+            },
+        }
+        for req in requests
+    ]
+    return jsonify({"requests": request_list})
+
+
 @app.route("/requestBook/<int:book_id>", methods=["POST"])
 @auth_required
-def add_to_request(book_id):
+def request_book(book_id):
     book = Books.query.get(book_id)
 
     if not book:
