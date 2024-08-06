@@ -13,6 +13,7 @@ import DeleteSection from "../components/section/DeleteSection.js";
 import ShowSection from "../components/section/ShowSection.js";
 import AddBook from "../components/AddBook.js";
 import EditBook from "../components/EditBook.js";
+import ShowBook from "../components/ShowBook.js";
 
 Vue.use(VueRouter);
 
@@ -59,6 +60,10 @@ const routes = [
     path: "/api/book/:id/edit",
     component: EditBook,
     meta: { requiresAuth: true, role: "admin" },
+  },
+  {
+    path: "/api/book/:id/show",
+    component: ShowBook,
   },
 ];
 

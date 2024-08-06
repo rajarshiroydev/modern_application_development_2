@@ -236,6 +236,20 @@ def add_book():
     return jsonify({"message": "Book added successfully"}), 201
 
 
+@app.route("/api/book/<int:id>/show", methods=["GET"])
+# @auth_required
+def read_book(id):
+    book = Books.query.get(id)
+    if not book:
+        return jsonify({"error": "No such book exists"}), 404
+    book_data = {
+        "name": book.name,
+        "content": book.content,
+        "author": book.author,
+    }
+    return jsonify({"book": book_data})
+
+
 @app.route("/api/book/<int:id>/edit", methods=["GET"])
 @admin_required
 def get_book(id):

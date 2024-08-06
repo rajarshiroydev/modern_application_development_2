@@ -10,7 +10,6 @@ class User(db.Model):
     name = db.Column(db.String(64), nullable=False)
     username = db.Column(db.String(32), unique=True)
     passhash = db.Column(db.String(256), nullable=False)
-    is_admin = db.Column(db.Boolean, nullable=False, default=False)
     role = db.Column(db.String(64), nullable=False)
 
 
@@ -69,14 +68,13 @@ class Feedbacks(db.Model):
 with app.app_context():
     db.create_all()
     # if an admin does not exist
-    admin = User.query.filter_by(is_admin=True).first()
+    admin = User.query.filter_by(role="admin").first()
     if not admin:
         password_hash = generate_password_hash("admin")
         admin = User(
             name="admin",
             username="admin",
             passhash=password_hash,
-            is_admin=True,
             role="admin",
         )
     db.session.add(admin)

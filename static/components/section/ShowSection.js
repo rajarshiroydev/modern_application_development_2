@@ -50,7 +50,7 @@ export default {
   },
   methods: {
     async show_book(id) {
-      this.$router.push(`/book/${id}/show`);
+      this.$router.push(`/api/book/${id}/show`);
     },
     async edit_book(id) {
       this.$router.push(`/api/book/${id}/edit`);
