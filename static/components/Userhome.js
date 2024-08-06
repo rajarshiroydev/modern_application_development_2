@@ -22,7 +22,7 @@ export default {
                     </div>
                     <br>
                     <strong>Choose Duration in Days</strong>
-                    <form @submit.prevent="addToCart(book.id)">
+                    <form @submit.prevent="request(book.id)">
                       <div class="input-group">
                         <input type="number" v-model.number="duration" id="duration" class="form-control" min="1" style="border-radius: 7px 7px 7px 7px;">
                       </div>
@@ -72,29 +72,29 @@ export default {
         console.error("Error fetching sections:", error);
       }
     },
-    async addToCart(bookId) {
+    async request(bookId) {
       try {
-        const response = await fetch("/api/cart/add", {
+        const response = await fetch(`/requestBook/${bookId}`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${sessionStorage.getItem("access_token")}`,
           },
-          body: JSON.stringify({ book_id: bookId, duration: this.duration }),
+          body: JSON.stringify({ duration: this.duration }),
         });
         if (response.ok) {
-          alert("Book added to cart successfully");
+          alert("Book requested successfully");
         } else {
           const data = await response.json();
           console.error(
-            "Error adding book to cart:",
+            "Error requesting for book:",
             data.message || "Unknown error"
           );
-          alert("Failed to add book to cart.");
+          alert("Failed to request book.");
         }
       } catch (error) {
-        console.error("Error adding book to cart:", error);
-        alert("An error occurred while adding the book to the cart.");
+        console.error("Error requesting for book:", error);
+        alert("An error occurred while requesting the book.");
       }
     },
   },

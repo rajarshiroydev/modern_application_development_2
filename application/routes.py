@@ -1,5 +1,6 @@
 from app import app
 from functools import wraps
+from datetime import datetime, timedelta
 from flask import request, jsonify, render_template, session, redirect, url_for, flash
 from flask_jwt_extended import (
     JWTManager,
@@ -9,7 +10,7 @@ from flask_jwt_extended import (
     set_access_cookies,
     unset_jwt_cookies,
 )
-from application.models import db, Section, User, Books, Cart, Issued, Feedbacks
+from application.models import db, Section, User, Books, Request, Issued, Feedbacks
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_caching import Cache
 
@@ -116,7 +117,9 @@ def login():
     if not check_password_hash(user.passhash, password):
         return jsonify({"message": "Incorrect password"}), 401
 
-    access_token = create_access_token(identity={"user_id": user.id, "role": user.role})
+    access_token = create_access_token(
+        identity={"user_id": user.id, "username": user.username, "role": user.role}
+    )
     response = jsonify({"access_token": access_token, "role": user.role})
     set_access_cookies(response, access_token)
     return response
@@ -350,3 +353,52 @@ def delete_book(id):
     return jsonify(
         {"message": "Book deleted successfully", "section_id": section_id}
     ), 200
+
+
+# ----------------------------Requests and Issued------------------------------------#
+
+
+@app.route("/requestBook/<int:book_id>", methods=["POST"])
+@auth_required
+def add_to_request(book_id):
+    book = Books.query.get(book_id)
+
+    if not book:
+        return jsonify({"error": "Book does not exist"}), 404
+
+    book.date_issued = datetime.now()
+
+    duration = request.json.get("duration")
+    if not duration or not isinstance(duration, int):
+        return jsonify({"error": "Invalid duration"}), 400
+
+    book.return_date = datetime.now() + timedelta(days=duration)
+
+    identity = get_jwt_identity()
+    user_id = identity["user_id"]
+    username = identity["username"]
+
+    # Check request size
+    request_size = Request.query.filter_by(user_id=user_id).count()
+    if request_size >= 5:
+        return jsonify({"error": "You cannot request for more than 5 books."}), 403
+
+    issued_book = Issued.query.filter_by(user_id=user_id, book_id=book_id).first()
+
+    if issued_book:
+        return jsonify({"error": "You already have this book in your library."}), 409
+
+    # Check if an item with the same user_id and book_id already exists
+    request_item = Request.query.filter_by(user_id=user_id, book_id=book_id).first()
+
+    if request_item:  # If the book already exists in the request list
+        return jsonify({"error": "You have already requested for this book."}), 409
+    else:  # If the book is new to the request list
+        new_request_item = Request(
+            user_id=user_id,
+            book_id=book_id,
+            username=username,
+        )
+        db.session.add(new_request_item)
+        db.session.commit()
+        return jsonify({"message": "Requested book successfully!"}), 201

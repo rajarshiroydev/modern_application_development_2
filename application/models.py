@@ -28,13 +28,13 @@ class Books(db.Model):
     author = db.Column(db.String(64), nullable=False)
     section_id = db.Column(db.Integer, db.ForeignKey("section.id"), nullable=False)
 
-    carts = db.relationship("Cart", backref="book", lazy=True)
+    requests = db.relationship("Request", backref="book", lazy=True)
     issued = db.relationship(
         "Issued", backref="books", lazy=True, cascade="all, delete-orphan"
     )
 
 
-class Cart(db.Model):
+class Request(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     username = db.Column(db.String(32), db.ForeignKey("user.username"), nullable=False)
