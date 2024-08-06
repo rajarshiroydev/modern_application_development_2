@@ -172,7 +172,7 @@ def get_section(id):
 
 @app.route("/api/section/<int:id>", methods=["PUT"])
 @admin_required
-def update_section(id):
+def edit_section(id):
     data = request.get_json()
     section = Section.query.get(id)
     if not section:
@@ -234,6 +234,68 @@ def add_book():
     db.session.commit()
 
     return jsonify({"message": "Book added successfully"}), 201
+
+
+@app.route("/api/book/<int:id>/edit", methods=["GET"])
+@admin_required
+def get_book(id):
+    book = Books.query.get(id)
+    if not book:
+        return jsonify({"error": "Book not found"}), 404
+
+    sections = Section.query.all()
+    sections_list = [{"id": section.id, "name": section.name} for section in sections]
+
+    book_data = {
+        "name": book.name,
+        "content": book.content,
+        "author": book.author,
+        "section_id": book.section_id,
+    }
+
+    return jsonify({"book": book_data, "sections": sections_list})
+
+
+@app.route("/api/book/<int:id>/edit", methods=["PUT"])
+@admin_required
+def edit_book_post(id):
+    data = request.json
+    name = data.get("name")
+    content = data.get("content")
+    author = data.get("author")
+    section_id = data.get("section_id")
+
+    if not name or not content or not author or not section_id:
+        return jsonify({"error": "All fields are mandatory"}), 400
+
+    section = Section.query.get(section_id)
+    if not section:
+        return jsonify({"error": "Section does not exist"}), 400
+
+    book = Books.query.get(id)
+    if not book:
+        return jsonify({"error": "Book not found"}), 404
+
+    book.name = name
+    book.content = content
+    book.author = author
+    book.section_id = section_id
+
+    # edits the book and author name in issued books
+    issued_books = Issued.query.get(id)
+    if issued_books:
+        issued_books.book_name = name
+        issued_books.author = author
+
+    # edits the book and author name in feedbacks
+    feedback = Feedbacks.query.get(id)
+    if feedback:
+        feedback.book_name = name
+        feedback.author = author
+
+    db.session.commit()
+
+    return jsonify({"message": "Book edited successfully"})
 
 
 @app.route("/api/book/<int:id>", methods=["DELETE"])

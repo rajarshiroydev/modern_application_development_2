@@ -53,7 +53,7 @@ export default {
       this.$router.push(`/book/${id}/show`);
     },
     async edit_book(id) {
-      this.$router.push(`/book/${id}/edit`);
+      this.$router.push(`/api/book/${id}/edit`);
     },
     async delete_book(id) {
       if (confirm("Are you sure you want to delete this book?")) {
@@ -69,7 +69,7 @@ export default {
 
           if (response.ok) {
             const data = await response.json();
-            alert(data.message || "Book deleted successfully.");
+            // alert(data.message || "Book deleted successfully.");
             await this.fetchSectionBooks(); // Refresh the book list
           } else {
             const errorData = await response.json();
