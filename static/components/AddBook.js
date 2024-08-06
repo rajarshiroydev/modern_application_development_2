@@ -1,6 +1,6 @@
 export default {
   template: `
-  <div>
+      <div>
     <form class="form" @submit.prevent="add_book">
       <div class="form-group">
         <label for="name" class="form-label">Book Name</label>
@@ -50,7 +50,6 @@ export default {
       </button>
     </form>
   </div>
-
     `,
   data() {
     return {
@@ -73,7 +72,13 @@ export default {
       });
       if (response.ok) {
         const data = await response.json();
-        this.sections = data; // Assume data is an array of section objects
+        this.sections = data; // Populate sections dropdown
+
+        // Set default selected section
+        const currentSectionId = this.getCurrentSectionId(); // Implement this method
+        if (currentSectionId) {
+          this.selectedSection = currentSectionId;
+        }
       } else {
         console.error("Failed to fetch sections");
       }
@@ -105,8 +110,9 @@ export default {
           this.bookName = ""; // Reset input field
           this.bookContent = ""; // Reset input field
           this.bookAuthor = ""; // Reset input field
+          // Redirect to the section
+          this.$router.push({ path: `/section/${this.selectedSection}/show` });
           this.selectedSection = ""; // Reset dropdown
-          alert("Book added successfully");
         } else {
           const text = await response.text(); // Get raw response text
           let data;
@@ -126,6 +132,11 @@ export default {
         console.error("Error:", error);
         alert("An error occurred while adding the book.");
       }
+    },
+    getCurrentSectionId() {
+      // Implement logic to get the current section ID from route params or other sources
+      // For example, you might use this.$route.params.sectionId if you are using Vue Router
+      return this.$route.params.sectionId; // Example implementation
     },
   },
 };
