@@ -56,6 +56,63 @@ def home():
     return render_template("index.html")
 
 
+@app.route("/api/sections", methods=["GET"])
+@auth_required
+def get_sections():
+    parameter = request.args.get("parameter")
+    query = request.args.get("query")
+
+    parameters = {
+        "section_name": "Section Name",
+        "book_name": "Book Name",
+        "author_name": "Author Name",
+    }
+
+    sections = Section.query.filter(Section.books.any()).all()
+
+    if parameter == "section_name":
+        sections = Section.query.filter(Section.name.ilike(f"%{query}%")).all()
+    elif parameter == "book_name":
+        sections = [
+            section
+            for section in Section.query.all()
+            if any(book for book in section.books if query.lower() in book.name.lower())
+        ]
+    elif parameter == "author_name":
+        sections = [
+            section
+            for section in Section.query.all()
+            if any(
+                book for book in section.books if query.lower() in book.author.lower()
+            )
+        ]
+
+    # Filter books within each section
+    for section in sections:
+        if parameter == "book_name":
+            section.books = [
+                book for book in section.books if query.lower() in book.name.lower()
+            ]
+        elif parameter == "author_name":
+            section.books = [
+                book for book in section.books if query.lower() in book.author.lower()
+            ]
+
+    section_data = [
+        {
+            "id": section.id,
+            "name": section.name,
+            "books": [
+                {"id": book.id, "name": book.name, "author": book.author}
+                for book in section.books
+            ],
+        }
+        for section in sections
+    ]
+
+    return jsonify({"sections": section_data, "parameters": parameters, "query": query})
+
+
 # ----------------------------Register, Login and Logout------------------------------------#
 
 
@@ -91,8 +148,11 @@ def login():
     password = data.get("password")
     user = User.query.filter_by(username=username).first()
 
-    if user is None or not check_password_hash(user.passhash, password):
-        return jsonify({"message": "Invalid credentials"}), 401
+    if not user:
+        return jsonify({"message": "User doesn't exist, register first"}), 404
+
+    if not check_password_hash(user.passhash, password):
+        return jsonify({"message": "Incorrect password"}), 401
 
     access_token = create_access_token(identity={"user_id": user.id, "role": user.role})
     response = jsonify({"access_token": access_token, "role": user.role})
@@ -112,7 +172,7 @@ def logout():
 
 
 @app.route("/adminhome")
-@admin_required
+# @admin_required
 @cache.cached(300)
 def admin_home():
     sections = Section.query.all()
@@ -198,7 +258,7 @@ def delete_section(id):
 
 
 @app.route("/section/<int:id>/show")
-@admin_required
+# @admin_required
 def show_section(id):
     section = Section.query.get(id)
     if not section:

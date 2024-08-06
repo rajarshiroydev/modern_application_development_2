@@ -41,9 +41,10 @@ export default {
         const data = await response.json();
 
         if (response.status === 404) {
+          alert(data.message || "User doesn't exist, register first");
           this.$router.push("/register");
         } else if (response.status === 401) {
-          alert("Invalid password. Please try again.");
+          alert(data.message || "Incorrect password. Please try again.");
         } else if (response.ok && data.access_token) {
           sessionStorage.setItem("access_token", data.access_token);
           sessionStorage.setItem("role", data.role); // Store the role in sessionStorage
