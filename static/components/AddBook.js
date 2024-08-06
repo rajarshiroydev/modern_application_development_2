@@ -1,6 +1,6 @@
 export default {
   template: `
-      <div>
+  <div>
     <form class="form" @submit.prevent="add_book">
       <div class="form-group">
         <label for="name" class="form-label">Book Name</label>
@@ -32,14 +32,17 @@ export default {
         >
       </div>
       <div class="form-group">
-        <label for="section_id" class="form-label">Section ID</label>
-        <input 
-          type="number" 
-          v-model="sectionId" 
-          id="section_id" 
+        <label for="section" class="form-label">Section</label>
+        <select 
+          v-model="selectedSection" 
+          id="section" 
           class="form-control" 
           required
         >
+          <option v-for="section in sections" :key="section.id" :value="section.id">
+            {{ section.name }}
+          </option>
+        </select>
       </div>
       <button type="submit" class="btn btn-success">
         <i class="fas fa-plus"></i>
@@ -47,14 +50,36 @@ export default {
       </button>
     </form>
   </div>
+
     `,
   data() {
     return {
       bookName: "",
       bookContent: "",
       bookAuthor: "",
-      sectionId: "",
+      selectedSection: "",
+      sections: [], // To hold section data
     };
+  },
+  async created() {
+    try {
+      const url = window.location.origin;
+      const response = await fetch(`${url}/adminhome`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${sessionStorage.getItem("access_token")}`, // Add token to headers
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        this.sections = data; // Assume data is an array of section objects
+      } else {
+        console.error("Failed to fetch sections");
+      }
+    } catch (error) {
+      console.error("Error fetching sections:", error);
+    }
   },
   methods: {
     async add_book() {
@@ -70,7 +95,7 @@ export default {
             name: this.bookName,
             content: this.bookContent,
             author: this.bookAuthor,
-            section_id: this.sectionId,
+            section_id: this.selectedSection, // Use selected section ID
           }),
         });
 
@@ -80,9 +105,8 @@ export default {
           this.bookName = ""; // Reset input field
           this.bookContent = ""; // Reset input field
           this.bookAuthor = ""; // Reset input field
-          this.sectionId = ""; // Reset input field
+          this.selectedSection = ""; // Reset dropdown
           alert("Book added successfully");
-          //   this.$router.push(`/section/${id}/show`);
         } else {
           const text = await response.text(); // Get raw response text
           let data;
