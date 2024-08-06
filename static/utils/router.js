@@ -10,6 +10,8 @@ import Adminhome from "../components/Adminhome.js";
 import SectionAdd from "../components/section/AddSection.js";
 import EditSection from "../components/section/EditSection.js";
 import DeleteSection from "../components/section/DeleteSection.js";
+import ShowSection from "../components/section/ShowSection.js";
+import AddBook from "../components/AddBook.js";
 
 Vue.use(VueRouter);
 
@@ -40,6 +42,16 @@ const routes = [
   {
     path: "/section/:id/delete",
     component: DeleteSection,
+    meta: { requiresAuth: true, role: "admin" },
+  },
+  {
+    path: "/section/:id/show",
+    component: ShowSection,
+    meta: { requiresAuth: true, role: "admin" },
+  },
+  {
+    path: "/book/add",
+    component: AddBook,
     meta: { requiresAuth: true, role: "admin" },
   },
 ];

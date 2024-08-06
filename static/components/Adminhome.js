@@ -58,7 +58,7 @@ export default {
             method: "DELETE",
             headers: {
               "Content-Type": "application/json",
-              "Authorization": `Bearer ${sessionStorage.getItem("access_token")}`,
+              Authorization: `Bearer ${sessionStorage.getItem("access_token")}`,
             },
           });
 
@@ -70,7 +70,9 @@ export default {
           }
         } catch (error) {
           console.error("Error deleting section:", error);
-          alert("An error occurred while deleting the section. Please try again.");
+          alert(
+            "An error occurred while deleting the section. Please try again."
+          );
         }
       }
     },
@@ -82,7 +84,7 @@ export default {
         const url = window.location.origin;
         const response = await fetch(`${url}/adminhome`, {
           headers: {
-            "Authorization": `Bearer ${sessionStorage.getItem("access_token")}`,
+            Authorization: `Bearer ${sessionStorage.getItem("access_token")}`,
           },
         });
 

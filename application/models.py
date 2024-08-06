@@ -27,8 +27,6 @@ class Books(db.Model):
     name = db.Column(db.String(64), nullable=False)
     content = db.Column(db.Text, nullable=False)
     author = db.Column(db.String(64), nullable=False)
-    date_issued = db.Column(db.Date)  # null as it'll be filled during issuance
-    return_date = db.Column(db.Date)  # null as it'll be filled during issuance
     section_id = db.Column(db.Integer, db.ForeignKey("section.id"), nullable=False)
 
     carts = db.relationship("Cart", backref="book", lazy=True)

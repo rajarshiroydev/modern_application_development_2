@@ -1,5 +1,4 @@
 from app import app
-from datetime import datetime, timedelta
 from functools import wraps
 from flask import request, jsonify, render_template, session, redirect, url_for, flash
 from flask_jwt_extended import (
@@ -14,9 +13,11 @@ from application.models import db, Section, User, Books, Cart, Issued, Feedbacks
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_caching import Cache
 
-# Create JWTManager instance
+
 jwt = JWTManager()
 cache = Cache(app)
+
+
 # ----------------------------Role based access------------------------------------#
 
 
@@ -194,3 +195,60 @@ def delete_section(id):
     db.session.delete(section)
     db.session.commit()
     return jsonify({"message": "Section deleted successfully"}), 200
+
+
+@app.route("/section/<int:id>/show")
+@admin_required
+def show_section(id):
+    section = Section.query.get(id)
+    if not section:
+        return jsonify({"error": "Section does not exist"}), 404
+
+    books = [
+        {"id": book.id, "name": book.name, "author": book.author}
+        for book in section.books
+    ]
+    return jsonify({"id": section.id, "name": section.name, "books": books}), 200
+
+
+@app.route("/book/add", methods=["POST"])
+@admin_required
+def add_book():
+    data = request.get_json()
+    name = data.get("name")
+    content = data.get("content")
+    author = data.get("author")
+    section_id = data.get("section_id")
+
+    section = Section.query.get(section_id)
+
+    if not section:
+        return jsonify({"error": "Section does not exist"}), 404
+
+    if not name or not content or not author:
+        return jsonify({"error": "All fields are mandatory"}), 400
+
+    book = Books(name=name, content=content, author=author, section_id=section_id)
+
+    db.session.add(book)
+    db.session.commit()
+
+    return jsonify({"message": "Book added successfully"}), 201
+
+
+@app.route("/api/book/<int:id>", methods=["DELETE"])
+@admin_required
+def delete_book(id):
+    book = Books.query.get(id)
+
+    if not book:
+        return jsonify({"error": "Book does not exist"}), 404
+
+    section_id = book.section_id
+
+    db.session.delete(book)
+    db.session.commit()
+
+    return jsonify(
+        {"message": "Book deleted successfully", "section_id": section_id}
+    ), 200
