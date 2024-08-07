@@ -15,12 +15,6 @@ export default {
                       <strong><i>by</i></strong> {{ book.author }}
                     </div>
                     <br>
-                    <div>
-                      <a :href="'/feedbacks/' + book.id" style="color: black;">
-                        <i><u>User feedbacks</u></i>
-                      </a>
-                    </div>
-                    <br>
                     <strong>Choose Duration in Days</strong>
                     <form @submit.prevent="request(book.id)">
                       <div class="input-group">
@@ -28,6 +22,9 @@ export default {
                       </div>
                       <input type="submit" value="Get Book" class="btn btn-success" style="margin-top: 10px;">
                     </form>
+                    <button class="btn btn-primary" @click="showFeedbacks(book.id)" style="margin-top: 10px;">
+                      User Feedbacks
+                    </button>
                   </div>
                 </div>
               </div>
@@ -116,6 +113,9 @@ export default {
         console.error("Error requesting for book:", error);
         alert("An error occurred while requesting the book.");
       }
+    },
+    showFeedbacks(bookId) {
+      this.$router.push(`/show_feedbacks/${bookId}`);
     },
   },
 };

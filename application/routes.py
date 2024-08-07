@@ -1,7 +1,16 @@
 from app import app
 from functools import wraps
 from datetime import datetime, timedelta
-from flask import request, jsonify, render_template, session, redirect, url_for, flash
+from flask import (
+    json,
+    request,
+    jsonify,
+    render_template,
+    session,
+    redirect,
+    url_for,
+    flash,
+)
 from flask_jwt_extended import (
     JWTManager,
     create_access_token,
@@ -553,3 +562,56 @@ def return_book(id):
 @auth_required
 def give_feedbacks_data(id):
     return jsonify({"book_id": id})
+
+
+@app.route("/give_feedbacks_post/<int:id>", methods=["POST"])
+@auth_required
+def give_feedbacks_post(id):
+    # Get feedback from JSON request
+    feedback = request.json.get("feedback")
+    if not feedback:
+        return jsonify({"message": "Feedback is required."}), 400
+
+    # Fetch the book information
+    info = Books.query.get(id)
+    if not info:
+        return jsonify({"message": "Book not found."}), 404
+
+    identity = get_jwt_identity()
+    user_id = identity["user_id"]
+    username = identity["username"]
+
+    # Create a new feedback entry
+    book_feedback = Feedbacks(
+        user_id=user_id,
+        book_id=id,
+        username=username,
+        book_name=info.name,
+        author=info.author,
+        feedback=feedback,
+        date_of_feedback=datetime.now(),
+    )
+    db.session.add(book_feedback)
+    db.session.commit()
+
+    return jsonify({"message": "Feedback given successfully."}), 200
+
+
+@app.route("/show_feedbacks/<int:book_id>", methods=["GET"])
+@auth_required
+def show_feedbacks_user(book_id):
+    feedbacks = Feedbacks.query.filter_by(book_id=book_id).all()
+    feedbacks_data = [
+        {
+            "id": feedback.id,
+            "book_name": feedback.book_name,
+            "author": feedback.author,
+            "user_id": feedback.user_id,
+            "username": feedback.username,
+            "date_of_feedback": feedback.date_of_feedback.isoformat(),
+            "feedback": feedback.feedback,
+        }
+        for feedback in feedbacks
+    ]
+
+    return jsonify({"feedbacks": feedbacks_data})
