@@ -355,7 +355,7 @@ def delete_book(id):
     ), 200
 
 
-# ----------------------------Requests and Issued------------------------------------#
+# ----------------------------Admin View Request, Grant, Reject and Revoke------------------------------------#
 
 
 @app.route("/requests", methods=["GET"])
@@ -367,6 +367,7 @@ def requests():
             "id": req.id,
             "user_id": req.user_id,
             "username": req.username,
+            "duration": req.duration,
             "book": {
                 "name": req.book.name,
                 "author": req.book.author,
@@ -375,6 +376,53 @@ def requests():
         for req in requests
     ]
     return jsonify({"requests": request_list})
+
+
+@app.route("/requests/grant/<int:id>", methods=["POST"])
+@admin_required
+def grant_request(id):
+    request_to_grant = Request.query.get(id)
+
+    if not request_to_grant:
+        return jsonify({"error": "Request does not exist"}), 404
+
+    # Calculate dates
+    date_issued = datetime.utcnow()
+    return_date = date_issued + timedelta(days=request_to_grant.duration)
+
+    # Create Issued record
+    issuance = Issued(
+        user_id=request_to_grant.user_id,
+        book_id=request_to_grant.book_id,
+        username=request_to_grant.username,
+        book_name=request_to_grant.book.name,
+        author=request_to_grant.book.author,
+        date_issued=date_issued,
+        return_date=return_date,
+    )
+
+    db.session.add(issuance)
+    db.session.delete(request_to_grant)
+    db.session.commit()
+
+    return jsonify({"message": "Request granted successfully"}), 200
+
+
+@app.route("/requests/reject/<int:id>", methods=["POST"])
+@admin_required
+def reject_request(id):
+    request_to_reject = Request.query.get(id)
+
+    if not request_to_reject:
+        return jsonify({"error": "Request does not exist"}), 404
+
+    # request_to_reject.status = "rejected"
+    db.session.delete(request_to_reject)
+    db.session.commit()
+    return jsonify({"message": "Request rejected successfully"}), 200
+
+
+# ----------------------------User Book Request------------------------------------#
 
 
 @app.route("/requestBook/<int:book_id>", methods=["POST"])

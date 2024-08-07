@@ -2,27 +2,26 @@ export default {
   template: `
         <div>
           <h1 class="display-1">User Requests</h1>
-          <hr>
           <table v-if="requests.length > 0" class="table">
             <thead>
               <tr>
+                <th>Request ID</th>
                 <th>User ID</th>
                 <th>Username</th>
                 <th>Book Name</th>
                 <th>Author</th>
-                <th>Issue Date</th>
-                <th>Return Date</th>
+                <th>Duration of Request</th>
                 <th>Access</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="request in requests" :key="request.id">
+                <td>{{ request.id }}</td>
                 <td>{{ request.user_id }}</td>
                 <td>{{ request.username }}</td>
                 <td>{{ request.book.name }}</td>
                 <td>{{ request.book.author }}</td>
-                <td>{{ request.book.date_issued }}</td>
-                <td>{{ request.book.return_date }}</td>
+                <td>{{ request.duration }} Days</td>
                 <td>
                   <button class="btn btn-success" @click="grantRequest(request.id)">
                     <i class="fas fa-plus"></i> Grant
@@ -73,7 +72,7 @@ export default {
     },
     async grantRequest(requestId) {
       try {
-        const response = await fetch(`/api/requests/grant/${requestId}`, {
+        const response = await fetch(`/requests/grant/${requestId}`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -98,7 +97,7 @@ export default {
     },
     async rejectRequest(requestId) {
       try {
-        const response = await fetch(`/api/requests/reject/${requestId}`, {
+        const response = await fetch(`/requests/reject/${requestId}`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
