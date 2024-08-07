@@ -7,6 +7,7 @@ export default {
       <router-link to="/adminhome" v-if="isAdmin" style="font-size: 20px; color: black; margin-right: 20px;">Admin Home</router-link>
       <router-link to="/requests" v-if="isAdmin" style="font-size: 20px; color: black; margin-right: 20px;">Requests</router-link>
       <router-link to="/userhome" v-if="isUser" style="font-size: 20px; color: black; margin-right: 20px;">User Home</router-link>
+      <router-link to="/issued_books_user" v-if="isUser" style="font-size: 20px; color: black; margin-right: 20px;">Library</router-link>
       <a href="#" @click.prevent="logout" v-if="isLoggedIn" style="font-size: 20px; color: black;">Logout</a>
     </nav>
   `,

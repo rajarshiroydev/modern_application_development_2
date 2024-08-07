@@ -422,7 +422,7 @@ def reject_request(id):
     return jsonify({"message": "Request rejected successfully"}), 200
 
 
-# ----------------------------User Book Request------------------------------------#
+# ----------------------------User Book Request, Library------------------------------------#
 
 
 @app.route("/requestBook/<int:book_id>", methods=["POST"])
@@ -470,3 +470,23 @@ def request_book(book_id):
         db.session.add(new_request_item)
         db.session.commit()
         return jsonify({"message": "Requested book successfully!"}), 201
+
+
+@app.route("/issued_books_user")
+@auth_required
+def issued_books_user():
+    identity = get_jwt_identity()
+    user_id = identity["user_id"]
+    all_issued = Issued.query.filter_by(user_id=user_id).all()
+    issued_books = [
+        {
+            "id": issued.id,
+            "book_id": issued.book_id,
+            "book_name": issued.book_name,
+            "author": issued.author,
+            "date_issued": issued.date_issued.isoformat(),
+            "return_date": issued.return_date.isoformat(),
+        }
+        for issued in all_issued
+    ]
+    return jsonify({"issuedBooks": issued_books})
