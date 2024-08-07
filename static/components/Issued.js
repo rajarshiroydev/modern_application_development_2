@@ -1,45 +1,44 @@
 export default {
   template: `
-    <div>
-    <h1 class="display-1">Issued Books</h1>
-    <div v-if="issuedBooks.length > 0">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>User ID</th>
-            <th>Book ID</th>
-            <th>Username</th>
-            <th>Book Name</th>
-            <th>Author</th>
-            <th>Issue Date</th>
-            <th>Return Date</th>
-            <th>Revoke</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="item in issuedBooks" :key="item.id">
-            <td>{{ item.user_id }}</td>
-            <td>{{ item.book_id }}</td>
-            <td>{{ item.username }}</td>
-            <td>{{ item.book_name }}</td>
-            <td>{{ item.author }}</td>
-            <td>{{ formatDate(item.date_issued) }}</td>
-            <td>{{ formatDate(item.return_date) }}</td>
-            <td>
-              <button class="btn btn-danger" @click="revokeBook(item.book_id, item.user_id)">
-                <i class="fas fa-ban"></i> Revoke
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div>
+      <div v-if="issuedBooks.length > 0">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>User ID</th>
+              <th>Book ID</th>
+              <th>Username</th>
+              <th>Book Name</th>
+              <th>Author</th>
+              <th>Issue Date</th>
+              <th>Return Date</th>
+              <th>Revoke</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="item in issuedBooks" :key="item.id">
+              <td>{{ item.user_id }}</td>
+              <td>{{ item.book_id }}</td>
+              <td>{{ item.username }}</td>
+              <td>{{ item.book_name }}</td>
+              <td>{{ item.author }}</td>
+              <td>{{ formatDate(item.date_issued) }}</td>
+              <td>{{ formatDate(item.return_date) }}</td>
+              <td>
+                <button class="btn btn-danger" @click="revokeBook(item.book_id, item.user_id)">
+                  <i class="fas fa-ban"></i> Revoke
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div v-else>
+        <h1 class="display-1">No Issued Books Currently</h1>
+        <hr>
+      </div>
     </div>
-    <div v-else>
-      <h1 class="display-1">No Issued Books Currently</h1>
-      <hr>
-    </div>
-  </div>
-    `,
+      `,
   data() {
     return {
       issuedBooks: [],
