@@ -16,6 +16,7 @@ import EditBook from "../components/book/EditBook.js";
 import ShowBook from "../components/book/ShowBook.js";
 import UserRequests from "../components/UserRequests.js";
 import Library from "../components/Library.js";
+import Issued from "../components/Issued.js";
 
 Vue.use(VueRouter);
 
@@ -76,6 +77,11 @@ const routes = [
     path: "/issued_books_user",
     component: Library,
     meta: { requiresAuth: true, role: "user" },
+  },
+  {
+    path: "/issued_books",
+    component: Issued,
+    meta: { requiresAuth: true, role: "admin" },
   },
 ];
 

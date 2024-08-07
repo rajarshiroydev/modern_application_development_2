@@ -422,6 +422,40 @@ def reject_request(id):
     return jsonify({"message": "Request rejected successfully"}), 200
 
 
+@app.route("/issued_books", methods=["GET"])
+@admin_required
+def issued_books():
+    all_issued = Issued.query.all()
+    issued_books = [
+        {
+            "id": issued.id,
+            "user_id": issued.user_id,
+            "book_id": issued.book_id,
+            "username": issued.username,
+            "book_name": issued.book_name,
+            "author": issued.author,
+            "date_issued": issued.date_issued.isoformat(),
+            "return_date": issued.return_date.isoformat(),
+        }
+        for issued in all_issued
+    ]
+    return jsonify({"issuedBooks": issued_books})
+
+
+@app.route("/revoke_book/<int:book_id>/<int:user_id>", methods=["POST"])
+@admin_required
+def revoke_book(book_id, user_id):
+    return_book = Issued.query.filter_by(user_id=user_id, book_id=book_id).first()
+
+    if not return_book:
+        return jsonify({"message": "Book not found or not issued to the user"}), 404
+
+    db.session.delete(return_book)
+    db.session.commit()
+
+    return jsonify({"message": "Book revoked successfully."})
+
+
 # ----------------------------User Book Request, Library------------------------------------#
 
 
