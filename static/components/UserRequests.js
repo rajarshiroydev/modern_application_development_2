@@ -1,7 +1,6 @@
 export default {
   template: `
         <div>
-          <h1 class="display-1">User Requests</h1>
           <table v-if="requests.length > 0" class="table">
             <thead>
               <tr>

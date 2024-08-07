@@ -74,7 +74,7 @@ export default {
     },
     async returnBook(issuedId) {
       try {
-        const response = await fetch(`/api/return_book/${issuedId}`, {
+        const response = await fetch(`/return_book/${issuedId}`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

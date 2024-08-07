@@ -490,3 +490,23 @@ def issued_books_user():
         for issued in all_issued
     ]
     return jsonify({"issuedBooks": issued_books})
+
+
+@app.route("/return_book/<int:id>", methods=["POST"])
+@jwt_required()
+def return_book(id):
+    # Get the user_id from JWT
+    identity = get_jwt_identity()
+    user_id = identity["user_id"]
+
+    # Fetch the issued book entry
+    return_book = Issued.query.filter_by(user_id=user_id, book_id=id).first()
+
+    if not return_book:
+        return jsonify({"message": "Book not found or not issued to the user"}), 404
+
+    # Delete the issued book entry
+    db.session.delete(return_book)
+    db.session.commit()
+
+    return jsonify({"message": "Book returned successfully."})
