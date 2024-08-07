@@ -17,6 +17,7 @@ import ShowBook from "../components/book/ShowBook.js";
 import UserRequests from "../components/UserRequests.js";
 import Library from "../components/Library.js";
 import Issued from "../components/Issued.js";
+import GiveFeedbacks from "../components/GiveFeedbacks.js";
 
 Vue.use(VueRouter);
 
@@ -82,6 +83,11 @@ const routes = [
     path: "/issued_books",
     component: Issued,
     meta: { requiresAuth: true, role: "admin" },
+  },
+  {
+    path: "/give_feedbacks_data/:id",
+    component: GiveFeedbacks,
+    meta: { requiresAuth: true, role: "user" },
   },
 ];
 

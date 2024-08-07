@@ -544,3 +544,12 @@ def return_book(id):
     db.session.commit()
 
     return jsonify({"message": "Book returned successfully."})
+
+
+# ----------------------------Feedbacks------------------------------------#
+
+
+@app.route("/give_feedbacks_data/<int:id>")
+@auth_required
+def give_feedbacks_data(id):
+    return jsonify({"book_id": id})

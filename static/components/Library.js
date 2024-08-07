@@ -67,10 +67,10 @@ export default {
       return new Date(dateString).toLocaleDateString(undefined, options);
     },
     readBook(bookId) {
-      window.location.href = `/read/${bookId}`;
+      this.$router.push(`/read/${bookId}`);
     },
     giveFeedback(bookId) {
-      window.location.href = `/feedbacks/${bookId}`;
+      this.$router.push(`/give_feedbacks_data/${bookId}`);
     },
     async returnBook(bookId) {
       try {
