@@ -95,13 +95,7 @@ const routes = [
   {
     path: "/user_feedbacks",
     component: UserFeedbacks,
-    meta: { requiresAuth: true, role: "admin" },
-  },
-  {
-    path: "/book_feedbacks/:id",
-    component: BookFeedbacks,
-    meta: { requiresAuth: true, role: "user" },
-    props: true,
+    // meta: { requiresAuth: true, role: ["admin", "user"] },
   },
 ];
 

@@ -36,7 +36,7 @@ export default {
                       </div>
                       <input type="submit" value="Get Book" class="btn btn-success" style="margin-top: 10px;">
                     </form>
-                    <button class="btn btn-primary" @click="bookFeedbacks(book.id)" style="margin-top: 10px;">
+                    <button class="btn btn-primary" @click="userFeedbacks" style="margin-top: 10px;">
                       Book Feedbacks
                     </button>
                   </div>
@@ -159,8 +159,8 @@ export default {
         alert("An error occurred while requesting the book.");
       }
     },
-    bookFeedbacks(bookId) {
-      this.$router.push(`book_feedbacks/${bookId}`);
+    userFeedbacks() {
+      this.$router.push("/user_feedbacks");
     },
   },
 };

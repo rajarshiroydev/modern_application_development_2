@@ -53,7 +53,7 @@ def admin_required(func):
     return wrapper
 
 
-# ----------------------------Home------------------------------------#
+# ----------------------------Home, Search------------------------------------#
 
 
 @app.route("/", methods=["GET"])
@@ -78,6 +78,68 @@ def get_all_sections():
         for section in sections
     ]
     return jsonify({"sections": section_data})
+
+
+@app.route("/api/search")
+@auth_required
+def search():
+    parameter = request.args.get("parameter")
+    query = request.args.get("query")
+
+    parameters = {
+        "section_name": "Section Name",
+        "book_name": "Book Name",
+        "author_name": "Author Name",
+    }
+
+    if parameter not in parameters:
+        return jsonify({"error": "Invalid parameter"}), 400
+
+    sections = Section.query.filter(Section.books.any()).all()
+
+    if parameter == "section_name":
+        sections = Section.query.filter(Section.name.ilike(f"%{query}%")).all()
+    elif parameter == "book_name":
+        sections = [
+            section
+            for section in Section.query.all()
+            if any(book for book in section.books if query.lower() in book.name.lower())
+        ]
+    elif parameter == "author_name":
+        sections = [
+            section
+            for section in Section.query.all()
+            if any(
+                book for book in section.books if query.lower() in book.author.lower()
+            )
+        ]
+
+    # Filter books within each section
+    for section in sections:
+        if parameter == "book_name":
+            section.books = [
+                book for book in section.books if query.lower() in book.name.lower()
+            ]
+        elif parameter == "author_name":
+            section.books = [
+                book for book in section.books if query.lower() in book.author.lower()
+            ]
+
+    return jsonify(
+        {
+            "sections": [
+                {
+                    "id": section.id,
+                    "name": section.name,
+                    "books": [
+                        {"id": book.id, "name": book.name, "author": book.author}
+                        for book in section.books
+                    ],
+                }
+                for section in sections
+            ]
+        }
+    )
 
 
 # ----------------------------Register, Login and Logout------------------------------------#
@@ -593,7 +655,7 @@ def give_feedbacks_post(id):
 
 
 @app.route("/user_feedbacks", methods=["GET"])
-@admin_required
+# @admin_required
 def user_feedbacks():
     feedbacks = Feedbacks.query.all()
     feedbacks_data = [
@@ -612,83 +674,21 @@ def user_feedbacks():
     return jsonify({"feedbacks": feedbacks_data})
 
 
-@app.route("/book_feedbacks/<int:book_id>", methods=["GET"])
-@auth_required
-def book_feedbacks(book_id):
-    feedbacks = Feedbacks.query.filter_by(book_id=book_id).all()
-    feedbacks_data = [
-        {
-            "id": feedback.id,
-            "book_name": feedback.book_name,
-            "author": feedback.author,
-            "user_id": feedback.user_id,
-            "username": feedback.username,
-            "date_of_feedback": feedback.date_of_feedback.isoformat(),
-            "feedback": feedback.feedback,
-        }
-        for feedback in feedbacks
-    ]
+# @app.route("/book_feedbacks/<int:book_id>", methods=["GET"])
+# @auth_required
+# def book_feedbacks(book_id):
+#     feedbacks = Feedbacks.query.filter_by(book_id=book_id).all()
+#     feedbacks_data = [
+#         {
+#             "id": feedback.id,
+#             "book_name": feedback.book_name,
+#             "author": feedback.author,
+#             "user_id": feedback.user_id,
+#             "username": feedback.username,
+#             "date_of_feedback": feedback.date_of_feedback.isoformat(),
+#             "feedback": feedback.feedback,
+#         }
+#         for feedback in feedbacks
+#     ]
 
-    return jsonify({"feedbacks": feedbacks_data})
-
-
-@app.route("/api/search")
-@auth_required
-def search():
-    parameter = request.args.get("parameter")
-    query = request.args.get("query")
-
-    parameters = {
-        "section_name": "Section Name",
-        "book_name": "Book Name",
-        "author_name": "Author Name",
-    }
-
-    if parameter not in parameters:
-        return jsonify({"error": "Invalid parameter"}), 400
-
-    sections = Section.query.filter(Section.books.any()).all()
-
-    if parameter == "section_name":
-        sections = Section.query.filter(Section.name.ilike(f"%{query}%")).all()
-    elif parameter == "book_name":
-        sections = [
-            section
-            for section in Section.query.all()
-            if any(book for book in section.books if query.lower() in book.name.lower())
-        ]
-    elif parameter == "author_name":
-        sections = [
-            section
-            for section in Section.query.all()
-            if any(
-                book for book in section.books if query.lower() in book.author.lower()
-            )
-        ]
-
-    # Filter books within each section
-    for section in sections:
-        if parameter == "book_name":
-            section.books = [
-                book for book in section.books if query.lower() in book.name.lower()
-            ]
-        elif parameter == "author_name":
-            section.books = [
-                book for book in section.books if query.lower() in book.author.lower()
-            ]
-
-    return jsonify(
-        {
-            "sections": [
-                {
-                    "id": section.id,
-                    "name": section.name,
-                    "books": [
-                        {"id": book.id, "name": book.name, "author": book.author}
-                        for book in section.books
-                    ],
-                }
-                for section in sections
-            ]
-        }
-    )
+#     return jsonify({"feedbacks": feedbacks_data})
