@@ -30,15 +30,17 @@ export default {
                     </div>
                     <br>
                     <strong>Choose Duration in Days</strong>
-                    <form @submit.prevent="request(book.id)">
-                      <div class="input-group">
-                        <input type="number" v-model.number="durations[book.id]" id="duration" class="form-control" min="1" style="border-radius: 7px 7px 7px 7px;">
-                      </div>
-                      <input type="submit" value="Get Book" class="btn btn-success" style="margin-top: 10px;">
-                    </form>
-                    <button class="btn btn-primary" @click="userFeedbacks" style="margin-top: 10px;">
-                      Book Feedbacks
-                    </button>
+                    <div style="display: flex; align-items: center; gap: 10px; margin-top: 10px;">
+                      <form @submit.prevent="request(book.id)">
+                        <div class="input-group">
+                          <input type="number" v-model.number="durations[book.id]" id="duration" class="form-control" min="1" style="border-radius: 7px 7px 7px 7px;">
+                        </div>
+                        <input type="submit" value="Get Book" class="btn btn-success" style="margin-top: 10px;">
+                      </form>
+                      <button class="btn btn-primary" @click="userFeedbacks" style="margin-top: 50px;">
+                        Feedbacks
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
