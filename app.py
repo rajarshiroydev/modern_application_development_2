@@ -1,12 +1,13 @@
 from flask import Flask, request
 from flask_jwt_extended import JWTManager
-from flask_cors import CORS
+
+# from flask_cors import CORS
 from flask_caching import Cache
 # import os
 
 # create app
 app = Flask(__name__)
-CORS(app)
+# CORS(app)
 
 # configure app
 app.config["CACHE_TYPE"] = "redis"

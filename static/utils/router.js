@@ -18,12 +18,14 @@ import UserRequests from "../components/UserRequests.js";
 import Library from "../components/Library.js";
 import Issued from "../components/Issued.js";
 import GiveFeedbacks from "../components/GiveFeedbacks.js";
-import ShowFeedbacks from "../components/ShowFeedbacks.js";
+import UserFeedbacks from "../components/UserFeedbacks.js";
 
 Vue.use(VueRouter);
 
 const routes = [
   { path: "/", redirect: "/login" },
+  { path: "/login", component: Login },
+  { path: "/register", component: Register },
   {
     path: "/adminhome",
     component: Adminhome,
@@ -34,8 +36,7 @@ const routes = [
     component: Userhome,
     meta: { requiresAuth: true, role: "user" },
   },
-  { path: "/login", component: Login },
-  { path: "/register", component: Register },
+
   {
     path: "/section/add",
     component: SectionAdd,
@@ -91,9 +92,9 @@ const routes = [
     meta: { requiresAuth: true, role: "user" },
   },
   {
-    path: "/show_feedbacks/:id",
-    component: ShowFeedbacks,
-    meta: { requiresAuth: true, role: "user" },
+    path: "/user_feedbacks",
+    component: UserFeedbacks,
+    meta: { requiresAuth: true, role: "admin" },
   },
 ];
 

@@ -1,6 +1,6 @@
 from app import app
 from functools import wraps
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from flask import (
     json,
     request,
@@ -89,7 +89,7 @@ def get_all_sections():
 
 
 @app.route("/register", methods=["POST"])
-def register_post():
+def register():
     data = request.get_json()
     name = data.get("name")
     username = data.get("username")
@@ -597,10 +597,10 @@ def give_feedbacks_post(id):
     return jsonify({"message": "Feedback given successfully."}), 200
 
 
-@app.route("/show_feedbacks/<int:book_id>", methods=["GET"])
-@auth_required
-def show_feedbacks_user(book_id):
-    feedbacks = Feedbacks.query.filter_by(book_id=book_id).all()
+@app.route("/user_feedbacks", methods=["GET"])
+@admin_required
+def user_feedbacks():
+    feedbacks = Feedbacks.query.all()
     feedbacks_data = [
         {
             "id": feedback.id,
