@@ -1,6 +1,20 @@
 export default {
   template: `
     <div>
+      <form @submit.prevent="search">
+        <div class="input-group">
+          <select v-model="selectedParameter" class="form-select">
+            <option v-for="(label, value) in parameters" :key="value" :value="value">
+              {{ label }}
+            </option>
+          </select>
+          <input type="text" v-model="query" class="form-control w-50" placeholder="Search for ..." style="border-radius: 0px 7px 7px 0px;">
+          <span class="input-group-btn">
+            <button class="btn btn-outline-primary" style="margin-left: 10px;">Search</button>
+          </span>
+        </div>
+      </form>
+      
       <div v-if="sections && sections.length > 0">
         <div style="display: flex; flex-direction: column; justify-content: left;">
           <div v-for="section in sections" :key="section.id">
@@ -22,8 +36,8 @@ export default {
                       </div>
                       <input type="submit" value="Get Book" class="btn btn-success" style="margin-top: 10px;">
                     </form>
-                    <button class="btn btn-primary" @click="showFeedbacks(book.id)" style="margin-top: 10px;">
-                      User Feedbacks
+                    <button class="btn btn-primary" @click="bookFeedbacks(book.id)" style="margin-top: 10px;">
+                      Book Feedbacks
                     </button>
                   </div>
                 </div>
@@ -42,6 +56,13 @@ export default {
     return {
       sections: [],
       durations: {}, // To store the duration for each book
+      query: "",
+      selectedParameter: "book_name",
+      parameters: {
+        section_name: "Section Name",
+        book_name: "Book Name",
+        author_name: "Author Name",
+      },
     };
   },
   mounted() {
@@ -74,6 +95,30 @@ export default {
         }
       } catch (error) {
         console.error("Error fetching sections:", error);
+      }
+    },
+    async search() {
+      try {
+        const response = await fetch(
+          `/api/search?parameter=${
+            this.selectedParameter
+          }&query=${encodeURIComponent(this.query)}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${sessionStorage.getItem("access_token")}`,
+            },
+          }
+        );
+        const data = await response.json();
+        if (response.ok) {
+          this.sections = data.sections;
+        } else {
+          console.error("Error searching:", data.message || "Unknown error");
+        }
+      } catch (error) {
+        console.error("Error searching:", error);
       }
     },
     async request(bookId) {
@@ -114,8 +159,8 @@ export default {
         alert("An error occurred while requesting the book.");
       }
     },
-    showFeedbacks(bookId) {
-      this.$router.push(`/show_feedbacks/${bookId}`);
+    bookFeedbacks(bookId) {
+      this.$router.push(`book_feedbacks/${bookId}`);
     },
   },
 };
