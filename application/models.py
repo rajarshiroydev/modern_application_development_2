@@ -64,7 +64,7 @@ class Feedbacks(db.Model):
     author = db.Column(db.String(64), nullable=False)
     date_of_feedback = db.Column(db.Date, nullable=False)
     feedback = db.Column(db.Text, nullable=False)
-    rating = db.Column(db.Integer)
+    rating = db.Column(db.Integer, default=0)
 
 
 with app.app_context():

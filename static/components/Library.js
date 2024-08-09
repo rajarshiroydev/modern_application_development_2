@@ -19,9 +19,6 @@ export default {
               <button class="btn btn-warning" @click="giveFeedback(item.book_id)">
                 <i class="fas fa-star"></i> Feedback
               </button>
-              <button class="btn btn-primary" @click="giveRating(item.book_id)">
-                <i class="fas fa-star"></i> Rate Book
-              </button>
               <button class="btn btn-danger" @click="returnBook(item.book_id)">
                 <i class="fas fa-ban"></i> Return
               </button>
@@ -76,36 +73,6 @@ export default {
     },
     giveFeedback(bookId) {
       this.$router.push(`/give_feedbacks_data/${bookId}`);
-    },
-    async giveRating(bookId) {
-      const rating = prompt("Please enter your rating (1-5):");
-      if (rating && !isNaN(rating) && rating >= 1 && rating <= 5) {
-        try {
-          const response = await fetch(`/rate_book/${bookId}`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${sessionStorage.getItem("access_token")}`,
-            },
-            body: JSON.stringify({ rating: Number(rating) }),
-          });
-
-          const data = await response.json();
-          if (response.ok) {
-            alert("Rating submitted successfully");
-            this.fetchIssuedBooks(); // Refresh the list
-          } else {
-            console.error(
-              "Error rating book:",
-              data.message || "Unknown error"
-            );
-            alert("Failed to submit rating.");
-          }
-        } catch (error) {
-          console.error("Error submitting rating:", error);
-          alert("An error occurred while submitting the rating.");
-        }
-      }
     },
     async returnBook(bookId) {
       try {
