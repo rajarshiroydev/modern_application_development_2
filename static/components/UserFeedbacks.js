@@ -14,6 +14,7 @@ export default {
           <div><strong>Username:</strong> {{ feedback.username }}</div>
           <div><strong>Date:</strong> {{ formatDate(feedback.date_of_feedback) }}</div>
           <div><strong>Feedback:</strong> {{ feedback.feedback }}</div>
+          <div><strong>Rating:</strong> {{ feedback.rating }}</div>
         </div>
       </div>
     </div>

@@ -696,8 +696,13 @@ def give_feedbacks_data(id):
 def give_feedbacks_post(id):
     # Get feedback from JSON request
     feedback = request.json.get("feedback")
+    rating = request.json.get("rating", 0)
+
     if not feedback:
         return jsonify({"message": "Feedback is required."}), 400
+
+    if rating is not None and (rating < 1 or rating > 5):
+        return jsonify({"message": "Rating must be between 1 and 5"}), 400
 
     # Fetch the book information
     info = Books.query.get(id)
@@ -717,6 +722,7 @@ def give_feedbacks_post(id):
         author=info.author,
         feedback=feedback,
         date_of_feedback=datetime.now(),
+        rating=rating,
     )
     db.session.add(book_feedback)
     db.session.commit()
@@ -737,6 +743,7 @@ def user_feedbacks():
             "username": feedback.username,
             "date_of_feedback": feedback.date_of_feedback.isoformat(),
             "feedback": feedback.feedback,
+            "rating": feedback.rating,
         }
         for feedback in feedbacks
     ]

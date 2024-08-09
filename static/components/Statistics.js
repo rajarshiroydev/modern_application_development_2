@@ -1,8 +1,8 @@
 export default {
-  template: `  <div>
-    <h1>Librarian Dashboard</h1>
+  template: `  
+  <div>
     <div>
-      <h2>Statistics</h2>
+      <h1>Statistics</h1>
       <div>
         <canvas id="myChart"></canvas>
       </div>
@@ -48,7 +48,7 @@ export default {
         data: {
           labels: [
             "Active Users",
-            "Grant Requests",
+            "User Requests",
             "Issued Books",
             "Revoked Books",
           ],

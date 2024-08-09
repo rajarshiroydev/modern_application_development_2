@@ -1,6 +1,6 @@
 export default {
   template: `
-    <nav style="background-color: #f8f9fa; padding: 10px 20px; border-radius: 5px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+    <nav style="background-color: #f8f9fa; padding: 10px 20px; border-radius: 5px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); margin-bottom: 10px;">
     <router-link to="/" v-if="!isLoggedIn" style="font-size: 20px; color: black; margin-right: 20px;">Home</router-link>
     <router-link to="/login" v-if="!isLoggedIn" style="font-size: 20px; color: black; margin-right: 20px;">Login</router-link>
     <router-link to="/register" v-if="!isLoggedIn" style="font-size: 20px; color: black; margin-right: 20px;">Register</router-link>

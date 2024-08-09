@@ -6,6 +6,14 @@ export default {
           <div class="form-group">
             <textarea v-model="feedback" rows="5" cols="63" maxlength="100" placeholder="Enter your feedback here"></textarea>
           </div>
+          <div class="form-group">
+            <label>Rating:</label>
+            <div class="rating">
+              <button v-for="n in 5" :key="n" @click="setRating(n)" :class="{'selected': rating >= n}" type="button" class="rating-btn">
+                {{ n }}
+              </button>
+            </div>
+          </div>
           <button type="submit" class="btn btn-success" style="margin-top: 10px">
             <i class="fas fa-check"></i> Submit
           </button>
@@ -15,6 +23,7 @@ export default {
   data() {
     return {
       feedback: "",
+      rating: null,
       bookId: null,
     };
   },
@@ -50,6 +59,9 @@ export default {
         alert("An error occurred while fetching book ID.");
       }
     },
+    setRating(n) {
+      this.rating = n;
+    },
     async submitFeedback() {
       try {
         const response = await fetch(`/give_feedbacks_post/${this.bookId}`, {
@@ -58,12 +70,16 @@ export default {
             "Content-Type": "application/json",
             Authorization: `Bearer ${sessionStorage.getItem("access_token")}`,
           },
-          body: JSON.stringify({ feedback: this.feedback }),
+          body: JSON.stringify({
+            feedback: this.feedback,
+            rating: this.rating,
+          }),
         });
 
         if (response.ok) {
           alert("Feedback submitted successfully");
           this.feedback = ""; // Clear the feedback field
+          this.rating = null; // Clear the rating
         } else {
           const data = await response.json();
           console.error(
