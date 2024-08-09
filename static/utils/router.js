@@ -20,6 +20,7 @@ import Issued from "../components/Issued.js";
 import GiveFeedbacks from "../components/GiveFeedbacks.js";
 import UserFeedbacks from "../components/UserFeedbacks.js";
 import Profile from "../components/Profile.js";
+import Navbar from "../components/Navbar.js";
 
 Vue.use(VueRouter);
 
@@ -101,6 +102,11 @@ const routes = [
     path: "/profile",
     component: Profile,
     meta: { requiresAuth: true, role: "user" },
+  },
+  {
+    path: "/",
+    component: Login,
+    meta: { requiresAuth: true },
   },
 ];
 

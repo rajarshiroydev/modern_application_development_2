@@ -1,18 +1,28 @@
 export default {
   template: `
     <nav style="background-color: #f8f9fa; padding: 10px 20px; border-radius: 5px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
-      <router-link to="/" v-if="!isLoggedIn" style="font-size: 20px; color: black; margin-right: 20px;">Home</router-link>
-      <router-link to="/login" v-if="!isLoggedIn" style="font-size: 20px; color: black; margin-right: 20px;">Login</router-link>
-      <router-link to="/register" v-if="!isLoggedIn" style="font-size: 20px; color: black; margin-right: 20px;">Register</router-link>
-      <router-link to="/adminhome" v-if="isAdmin" style="font-size: 20px; color: black; margin-right: 20px;">Admin Home</router-link>
-      <router-link to="/user_feedbacks" v-if="isAdmin" style="font-size: 20px; color: black; margin-right: 20px;">User Feedbacks</router-link>
-      <router-link to="/issued_books" v-if="isAdmin" style="font-size: 20px; color: black; margin-right: 20px;">Issued</router-link>
-      <router-link to="/requests" v-if="isAdmin" style="font-size: 20px; color: black; margin-right: 20px;">Requests</router-link>
-      <router-link to="/userhome" v-if="isUser" style="font-size: 20px; color: black; margin-right: 20px;">User Home</router-link>
-      <router-link to="/profile" v-if="isUser" style="font-size: 20px; color: black; margin-right: 20px;">Profile</router-link>
-      <router-link to="/issued_books_user" v-if="isUser" style="font-size: 20px; color: black; margin-right: 20px;">Library</router-link>
-      <a href="#" @click.prevent="logout" v-if="isLoggedIn" style="font-size: 20px; color: black;">Logout</a>
-    </nav>
+    <router-link to="/" v-if="!isLoggedIn" style="font-size: 20px; color: black; margin-right: 20px;">Home</router-link>
+    <router-link to="/login" v-if="!isLoggedIn" style="font-size: 20px; color: black; margin-right: 20px;">Login</router-link>
+    <router-link to="/register" v-if="!isLoggedIn" style="font-size: 20px; color: black; margin-right: 20px;">Register</router-link>
+
+    <!-- Admin links -->
+    <template v-if="isAdmin">
+      <router-link to="/adminhome" style="font-size: 20px; color: black; margin-right: 20px;">Admin Home</router-link>
+      <router-link to="/user_feedbacks" style="font-size: 20px; color: black; margin-right: 20px;">User Feedbacks</router-link>
+      <router-link to="/issued_books" style="font-size: 20px; color: black; margin-right: 20px;">Issued</router-link>
+      <router-link to="/requests" style="font-size: 20px; color: black; margin-right: 20px;">Requests</router-link>
+    </template>
+
+    <!-- User links -->
+    <template v-if="isUser">
+      <router-link to="/userhome" style="font-size: 20px; color: black; margin-right: 20px;">User Home</router-link>
+      <router-link to="/profile" style="font-size: 20px; color: black; margin-right: 20px;">Profile</router-link>
+      <router-link to="/issued_books_user" style="font-size: 20px; color: black; margin-right: 20px;">Library</router-link>
+    </template>
+
+    <!-- Logout link -->
+    <a href="#" @click.prevent="logout" v-if="isLoggedIn" style="font-size: 20px; color: black;">Logout</a>
+  </nav>
   `,
   data() {
     return {
@@ -56,5 +66,19 @@ export default {
         console.error("Error during logout:", error);
       }
     },
+  },
+  watch: {
+    // Watch for changes in session storage
+    accessToken(newValue) {
+      this.role = newValue ? sessionStorage.getItem("role") : null;
+    },
+    role() {
+      // Force re-rendering to update navbar
+      this.$forceUpdate();
+    },
+  },
+  created() {
+    // Initialize role on creation
+    this.role = sessionStorage.getItem("role");
   },
 };

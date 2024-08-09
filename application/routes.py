@@ -718,6 +718,31 @@ def user_feedbacks():
     return jsonify({"feedbacks": feedbacks_data})
 
 
+@app.route("/rate_book/<int:book_id>", methods=["POST"])
+@auth_required
+def rate_book(book_id):
+    data = request.json
+    rating = data.get("rating")
+
+    if not rating or not (1 <= rating <= 5):
+        return jsonify(
+            {"message": "Invalid rating. Please provide a rating between 1 and 5."}
+        ), 400
+
+    try:
+        issued_record = Issued.query.filter_by(book_id=book_id).first()
+        if not issued_record:
+            return jsonify({"message": "Issued record not found."}), 404
+
+        issued_record.rating = rating
+        db.session.commit()
+
+        return jsonify({"message": "Rating updated successfully."}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"message": "Error updating rating.", "error": str(e)}), 500
+
+
 # @app.route("/book_feedbacks/<int:book_id>", methods=["GET"])
 # @auth_required
 # def book_feedbacks(book_id):

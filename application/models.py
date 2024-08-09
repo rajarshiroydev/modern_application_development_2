@@ -51,6 +51,7 @@ class Issued(db.Model):
     author = db.Column(db.String(64), nullable=False)
     date_issued = db.Column(db.Date, nullable=False)
     return_date = db.Column(db.Date, nullable=False)
+    rating = db.Column(db.Integer)
 
 
 # keeping the data of feedbacks separately because the

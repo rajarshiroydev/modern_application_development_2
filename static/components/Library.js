@@ -1,36 +1,41 @@
 export default {
-  template: `  <div>
-      <h1 class="display-1">Library</h1>
-      <div v-if="issuedBooks.length > 0" class="row">
-        <div v-for="item in issuedBooks" :key="item.id" class="col-md-4 mb-4">
-          <div class="card">
-            <div class="card-body">
-              <h5 class="card-title">{{ item.book_name }}</h5>
-              <p class="card-text">
-                <strong>Author:</strong> {{ item.author }}<br>
-                <strong>Issue Date:</strong> {{ formatDate(item.date_issued) }}<br>
-                <strong>Return Date:</strong> {{ formatDate(item.return_date) }}
-              </p>
-              <div class="d-flex justify-content-between">
-                <button class="btn btn-success" @click="readBook(item.book_id)">
-                  <i class="fas fa-book-reader"></i> Read
-                </button>
-                <button class="btn btn-warning" @click="giveFeedback(item.book_id)">
-                  <i class="fas fa-star"></i> Feedback
-                </button>
-                <button class="btn btn-danger" @click="returnBook(item.book_id)">
-                  <i class="fas fa-ban"></i> Return
-                </button>
-              </div>
+  template: `
+    <div>
+    <h1 class="display-1">Library</h1>
+    <div v-if="issuedBooks.length > 0" class="row">
+      <div v-for="item in issuedBooks" :key="item.id" class="col-md-4 mb-4">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">{{ item.book_name }}</h5>
+            <p class="card-text">
+              <strong>Author:</strong> {{ item.author }}<br>
+              <strong>Issue Date:</strong> {{ formatDate(item.date_issued) }}<br>
+              <strong>Return Date:</strong> {{ formatDate(item.return_date) }}
+            </p>
+            <div class="d-flex justify-content-between">
+              <button class="btn btn-success" @click="readBook(item.book_id)">
+                <i class="fas fa-book-reader"></i> Read
+              </button>
+              <button class="btn btn-warning" @click="giveFeedback(item.book_id)">
+                <i class="fas fa-star"></i> Feedback
+              </button>
+              <button class="btn btn-primary" @click="giveRating(item.book_id)">
+                <i class="fas fa-star"></i> Rate Book
+              </button>
+              <button class="btn btn-danger" @click="returnBook(item.book_id)">
+                <i class="fas fa-ban"></i> Return
+              </button>
             </div>
           </div>
         </div>
       </div>
-      <div v-else>
-        <h1 class="display-1">No Books in Library Currently</h1>
-        <hr>
-      </div>
-    </div>`,
+    </div>
+    <div v-else>
+      <h1 class="display-1">No Books in Library Currently</h1>
+      <hr>
+    </div>
+  </div>
+  `,
   data() {
     return {
       issuedBooks: [],
@@ -71,6 +76,38 @@ export default {
     },
     giveFeedback(bookId) {
       this.$router.push(`/give_feedbacks_data/${bookId}`);
+    },
+    async giveRating(bookId) {
+      const rating = prompt("Please enter your rating (1-5):");
+      if (rating && !isNaN(rating) && rating >= 1 && rating <= 5) {
+        try {
+          const response = await fetch(`/rate_book/${bookId}`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${sessionStorage.getItem("access_token")}`,
+            },
+            body: JSON.stringify({ rating: Number(rating) }),
+          });
+
+          const data = await response.json();
+          if (response.ok) {
+            alert("Rating submitted successfully");
+            this.fetchIssuedBooks(); // Refresh the list
+          } else {
+            console.error(
+              "Error rating book:",
+              data.message || "Unknown error"
+            );
+            alert("Failed to submit rating.");
+          }
+        } catch (error) {
+          console.error("Error submitting rating:", error);
+          alert("An error occurred while submitting the rating.");
+        }
+      } else {
+        alert("Invalid rating. Please enter a number between 1 and 5.");
+      }
     },
     async returnBook(bookId) {
       try {
