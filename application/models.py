@@ -27,7 +27,7 @@ class Books(db.Model):
     content = db.Column(db.Text, nullable=False)
     author = db.Column(db.String(64), nullable=False)
     section_id = db.Column(db.Integer, db.ForeignKey("section.id"), nullable=False)
-
+    is_revoked = db.Column(db.Boolean, default=False)
     requests = db.relationship("Request", backref="book", lazy=True)
     issued = db.relationship(
         "Issued", backref="books", lazy=True, cascade="all, delete-orphan"

@@ -258,6 +258,28 @@ def admin_home():
     return jsonify(section_data), 200
 
 
+@app.route("/admin/dashboard", methods=["GET"])
+@admin_required
+def admin_dashboard():
+    # Retrieve statistics
+    active_users_count = User.query.count()
+    grant_requests_count = Request.query.count()
+    issued_books_count = Issued.query.count()
+    revoked_books_count = Books.query.filter_by(
+        is_revoked=True
+    ).count()  # Count based on the new field
+
+    # Create response data
+    dashboard_data = {
+        "active_users": active_users_count,
+        "grant_requests": grant_requests_count,
+        "issued_books": issued_books_count,
+        "revoked_books": revoked_books_count,
+    }
+
+    return jsonify(dashboard_data)
+
+
 @app.route("/unauthorized")
 def unauthorized():
     return jsonify({"message": "Unauthorized access"}), 403
@@ -396,7 +418,6 @@ def get_book(id):
     sections_list = [{"id": section.id, "name": section.name} for section in sections]
 
     book_data = {
-        "name": book.name,
         "content": book.content,
         "author": book.author,
         "section_id": book.section_id,
@@ -555,12 +576,17 @@ def issued_books():
 @app.route("/revoke_book/<int:book_id>/<int:user_id>", methods=["POST"])
 @admin_required
 def revoke_book(book_id, user_id):
-    return_book = Issued.query.filter_by(user_id=user_id, book_id=book_id).first()
+    revoke_book = Issued.query.filter_by(user_id=user_id, book_id=book_id).first()
 
-    if not return_book:
+    if not revoke_book:
         return jsonify({"message": "Book not found or not issued to the user"}), 404
 
-    db.session.delete(return_book)
+    revoke_status = Books.query.filter_by(id=book_id, is_revoked=False).first()
+
+    if revoke_status:
+        revoke_status.is_revoked = True
+
+    db.session.delete(revoke_book)
     db.session.commit()
 
     return jsonify({"message": "Book revoked successfully."})

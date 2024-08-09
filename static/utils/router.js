@@ -20,7 +20,7 @@ import Issued from "../components/Issued.js";
 import GiveFeedbacks from "../components/GiveFeedbacks.js";
 import UserFeedbacks from "../components/UserFeedbacks.js";
 import Profile from "../components/Profile.js";
-import Navbar from "../components/Navbar.js";
+import Statistics from "../components/Statistics.js";
 
 Vue.use(VueRouter);
 
@@ -104,9 +104,9 @@ const routes = [
     meta: { requiresAuth: true, role: "user" },
   },
   {
-    path: "/",
-    component: Login,
-    meta: { requiresAuth: true },
+    path: "/admin/dashboard",
+    component: Statistics,
+    meta: { requiresAuth: true, role: "admin" },
   },
 ];
 

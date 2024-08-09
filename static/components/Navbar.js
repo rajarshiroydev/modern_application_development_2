@@ -11,6 +11,7 @@ export default {
       <router-link to="/user_feedbacks" style="font-size: 20px; color: black; margin-right: 20px;">User Feedbacks</router-link>
       <router-link to="/issued_books" style="font-size: 20px; color: black; margin-right: 20px;">Issued</router-link>
       <router-link to="/requests" style="font-size: 20px; color: black; margin-right: 20px;">Requests</router-link>
+      <router-link to="/admin/dashboard" style="font-size: 20px; color: black; margin-right: 20px;">Statistics</router-link>
     </template>
 
     <!-- User links -->
