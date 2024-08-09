@@ -72,7 +72,7 @@ export default {
       return new Date(dateString).toLocaleDateString(undefined, options);
     },
     readBook(bookId) {
-      this.$router.push(`/read/${bookId}`);
+      this.$router.push(`/book/${bookId}/show`);
     },
     giveFeedback(bookId) {
       this.$router.push(`/give_feedbacks_data/${bookId}`);
@@ -105,8 +105,6 @@ export default {
           console.error("Error submitting rating:", error);
           alert("An error occurred while submitting the rating.");
         }
-      } else {
-        alert("Invalid rating. Please enter a number between 1 and 5.");
       }
     },
     async returnBook(bookId) {

@@ -371,7 +371,7 @@ def add_book():
     return jsonify({"message": "Book added successfully"}), 201
 
 
-@app.route("/api/book/<int:id>/show", methods=["GET"])
+@app.route("/book/<int:id>/show", methods=["GET"])
 # @auth_required
 def read_book(id):
     book = Books.query.get(id)

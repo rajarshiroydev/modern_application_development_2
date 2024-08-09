@@ -70,7 +70,7 @@ const routes = [
     meta: { requiresAuth: true, role: "admin" },
   },
   {
-    path: "/api/book/:id/show",
+    path: "/book/:id/show",
     component: ShowBook,
   },
   {

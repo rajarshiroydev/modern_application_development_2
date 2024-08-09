@@ -20,7 +20,7 @@ export default {
       try {
         const url = window.location.origin;
         const response = await fetch(
-          `${url}/api/book/${this.$route.params.id}/show`,
+          `${url}/book/${this.$route.params.id}/show`,
           {
             headers: {
               Authorization: `Bearer ${sessionStorage.getItem("access_token")}`,
