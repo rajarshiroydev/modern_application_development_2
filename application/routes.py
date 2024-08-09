@@ -80,6 +80,50 @@ def get_all_sections():
     return jsonify({"sections": section_data})
 
 
+@app.route("/profile", methods=["GET", "POST"])
+@auth_required
+def profile():
+    user_identity = get_jwt_identity()
+    user_id = user_identity["user_id"]
+    user = User.query.get(user_id)
+
+    if request.method == "POST":
+        data = request.json
+        name = data.get("name")
+        new_username = data.get("username")
+        cpassword = data.get("cpassword")
+        password = data.get("password")
+
+        # Validate the request data
+        if not name or not new_username or not cpassword or not password:
+            return jsonify({"error": "Please fill out all the fields"}), 400
+
+        if new_username != user.username:
+            existing_user = User.query.filter_by(username=new_username).first()
+            if existing_user:
+                return jsonify({"error": "Username already exists"}), 400
+
+        if not check_password_hash(user.passhash, cpassword):
+            return jsonify({"error": "Current password does not match"}), 400
+
+        if check_password_hash(user.passhash, password):
+            return jsonify(
+                {"error": "New password cannot be the same as the old password"}
+            ), 400
+
+        new_password_hash = generate_password_hash(password)
+        user.username = new_username
+        user.passhash = new_password_hash
+        user.name = name
+        db.session.commit()
+        return jsonify({"message": "Profile updated successfully"}), 200
+
+    elif request.method == "GET":
+        if user:
+            return jsonify({"username": user.username, "name": user.name}), 200
+        return jsonify({"error": "User not found"}), 404
+
+
 @app.route("/api/search")
 @auth_required
 def search():

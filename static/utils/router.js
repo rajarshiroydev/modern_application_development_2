@@ -19,7 +19,7 @@ import Library from "../components/Library.js";
 import Issued from "../components/Issued.js";
 import GiveFeedbacks from "../components/GiveFeedbacks.js";
 import UserFeedbacks from "../components/UserFeedbacks.js";
-import BookFeedbacks from "../components/BookFeedbacks.js";
+import Profile from "../components/Profile.js";
 
 Vue.use(VueRouter);
 
@@ -96,6 +96,11 @@ const routes = [
     path: "/user_feedbacks",
     component: UserFeedbacks,
     // meta: { requiresAuth: true, role: ["admin", "user"] },
+  },
+  {
+    path: "/profile",
+    component: Profile,
+    meta: { requiresAuth: true, role: "user" },
   },
 ];
 
