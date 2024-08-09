@@ -117,7 +117,7 @@ router.beforeEach((to, from, next) => {
   const userRole = sessionStorage.getItem("role");
 
   if (to.meta.requiresAuth && !isLoggedIn) {
-    next(false);
+    next({ name: "Login" });
   } else if (to.meta.requiresAuth && to.meta.role !== userRole) {
     next(false); // Or redirect to a specific unauthorized page
   } else {

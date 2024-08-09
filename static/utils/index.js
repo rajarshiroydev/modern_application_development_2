@@ -7,16 +7,6 @@ import router from "./router.js";
 
 Vue.use(VueRouter);
 
-router.beforeEach((to, from, next) => {
-  if (
-    to.name !== "Login" && !sessionStorage.getItem("access_token")
-      ? true
-      : false
-  )
-    next({ name: "Login" });
-  else next();
-});
-
 new Vue({
   el: "#app",
   components: {
