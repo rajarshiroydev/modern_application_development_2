@@ -2,20 +2,37 @@
 const Vue = window.Vue;
 const VueRouter = window.VueRouter;
 
-// Import components
 import Navbar from "../components/Navbar.js";
-
-// Define routes and router
 import router from "./router.js";
 
 Vue.use(VueRouter);
 
+router.beforeEach((to, from, next) => {
+  if (
+    to.name !== "Login" && !sessionStorage.getItem("access_token")
+      ? true
+      : false
+  )
+    next({ name: "Login" });
+  else next();
+});
+
 new Vue({
   el: "#app",
-  components: { Navbar },
+  components: {
+    Navbar,
+  },
+  data: {
+    has_changed: true,
+  },
+  watch: {
+    $route(to, from) {
+      this.has_changed = !this.has_changed;
+    },
+  },
   template: `
     <div>
-      <Navbar/>
+      <Navbar :key='has_changed'/>
       <router-view/>
     </div>`,
   router,
