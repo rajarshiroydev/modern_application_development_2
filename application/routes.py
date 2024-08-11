@@ -63,6 +63,7 @@ def home():
 
 @app.route("/api/sections", methods=["GET"])
 @auth_required
+@cache.cached(30)
 def get_all_sections():
     sections = Section.query.filter(Section.books.any()).all()
 
@@ -247,8 +248,8 @@ def logout():
 
 
 @app.route("/adminhome")
-# @admin_required
-@cache.cached(300)
+@admin_required
+@cache.cached(30)
 def admin_home():
     sections = Section.query.all()
     section_data = [
@@ -355,7 +356,8 @@ def delete_section(id):
 
 
 @app.route("/section/<int:id>/show")
-# @admin_required
+@admin_required
+@cache.cached(30)
 def show_section(id):
     section = Section.query.get(id)
     if not section:
@@ -395,6 +397,7 @@ def add_book():
 
 @app.route("/book/<int:id>/show", methods=["GET"])
 # @auth_required
+@cache.cached(30)
 def read_book(id):
     book = Books.query.get(id)
     if not book:

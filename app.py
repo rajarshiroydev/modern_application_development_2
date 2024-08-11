@@ -1,5 +1,6 @@
 from flask import Flask, request
 from flask_jwt_extended import JWTManager
+from application.worker import celery_init_app
 
 # from flask_cors import CORS
 from flask_caching import Cache
@@ -15,7 +16,7 @@ app.config["CACHE_REDIS_HOST"] = "localhost"
 app.config["CACHE_REDIS_PORT"] = 6379
 app.config["CACHE_REDIS_DB"] = 0
 app.config["CACHE_REDIS_URL"] = "redis://localhost:6379/0"
-app.config["CACHE_DEFAULT_TIMEOUT"] = 300
+app.config["CACHE_DEFAULT_TIMEOUT"] = 30
 
 
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
@@ -28,6 +29,9 @@ cache = Cache(app)
 
 # Initialize JWT
 jwt = JWTManager(app)
+
+celery_app = celery_init_app(app)
+
 
 # importing models and routes
 import application.models
