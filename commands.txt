@@ -1,3 +1,6 @@
-flask run
-brew services start redis
+flask run (termial 1)
+redis-server (termial 2)
+mailhog (terminal 3)
+celery -A app:celery_app worker (termial 4)
+celery -A app:celery_app beat --max-interval 1 -l info (termial 5)
 redis-cli ping
