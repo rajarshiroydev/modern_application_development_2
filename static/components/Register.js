@@ -12,6 +12,10 @@ export default {
           <input v-model="username" type="text" id="username" name="username" class="form-control" required>
         </div>
         <div class="form-group">
+          <label for="email" class="form-label">Username</label>
+          <input v-model="email" type="email" id="email" name="email" class="form-control" required>
+        </div>
+        <div class="form-group">
           <label for="password" class="form-label">Password</label>
           <input v-model="password" type="password" id="password" name="password" class="form-control" required>
         </div>
@@ -29,6 +33,7 @@ export default {
     return {
       name: "",
       username: "",
+      email: "",
       password: "",
       confirm_password: "",
     };
@@ -36,7 +41,13 @@ export default {
   methods: {
     async register_post() {
       // Basic validation
-      if (!this.name || !this.username || !this.password || !this.confirm_password) {
+      if (
+        !this.name ||
+        !this.username ||
+        !this.email ||
+        !this.password ||
+        !this.confirm_password
+      ) {
         alert("Please fill out all fields.");
         return;
       }
@@ -56,6 +67,7 @@ export default {
           body: JSON.stringify({
             name: this.name,
             username: this.username,
+            email: this.email,
             password: this.password,
             confirm_password: this.confirm_password,
           }),

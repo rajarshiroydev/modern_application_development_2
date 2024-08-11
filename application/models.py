@@ -11,6 +11,7 @@ class User(db.Model):
     username = db.Column(db.String(32), unique=True)
     passhash = db.Column(db.String(256), nullable=False)
     role = db.Column(db.String(64), nullable=False)
+    email = db.Column(db.String(64), nullable=False)
 
 
 class Section(db.Model):
@@ -78,6 +79,7 @@ with app.app_context():
             username="admin",
             passhash=password_hash,
             role="admin",
+            email="admin@email.com",
         )
     db.session.add(admin)
     db.session.commit()

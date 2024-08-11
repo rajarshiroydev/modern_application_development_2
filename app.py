@@ -32,10 +32,10 @@ jwt = JWTManager(app)
 
 celery_app = celery_init_app(app)
 
-
 # importing models and routes
 import application.models
 import application.routes
+import application.tasks  # Ensure tasks are imported
 
 
 @app.before_request

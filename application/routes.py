@@ -195,10 +195,11 @@ def register():
     data = request.get_json()
     name = data.get("name")
     username = data.get("username")
+    email = data.get("email")
     password = data.get("password")
     confirm_password = data.get("confirm_password")
 
-    if not name or not username or not password or not confirm_password:
+    if not name or not username or not email or not password or not confirm_password:
         return jsonify({"error": "Please fill out all the fields"}), 400
 
     if password != confirm_password:
@@ -209,7 +210,9 @@ def register():
         return jsonify({"error": "User already exists"}), 409
 
     password_hash = generate_password_hash(password)
-    new_user = User(username=username, passhash=password_hash, name=name, role="user")
+    new_user = User(
+        username=username, passhash=password_hash, name=name, role="user", email=email
+    )
     db.session.add(new_user)
     db.session.commit()
     return jsonify({"message": "Registered successfully."}), 201
