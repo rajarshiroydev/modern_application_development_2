@@ -1,5 +1,5 @@
 from celery import shared_task
-from application.models import User, Issued
+from application.models import User, Issued, Feedbacks
 from datetime import datetime, timedelta
 from application.mailer import send_mail
 from celery.schedules import crontab
@@ -97,15 +97,74 @@ def export_user_data(user_id):
     return f"CSV file exported and emails sent for {user.name}!"
 
 
-# -----------------------------User export for issue details--------------------------------------#
+# -----------------------------Montly report for admin--------------------------------------#
+
+
+@celery_app.task(ignore_result=False)
+def monthly_report():
+    # Fetch admin user
+    admin = User.query.filter_by(role="admin").first()
+    if not admin:
+        return "No admin found."
+
+    users = User.query.all()
+    report_data = []
+
+    for user in users:
+        user_report = {
+            "name": user.name,
+            "email": user.email,
+            "issuances": [],
+        }
+
+        issuances = Issued.query.filter_by(user_id=user.id).all()
+        for issuance in issuances:
+            feedback = Feedbacks.query.filter_by(
+                book_id=issuance.book_id, user_id=user.id
+            ).first()
+            book_info = {
+                "book_name": issuance.book_name,
+                "section_name": issuance.books.section.name,
+                "author": issuance.author,
+                "date_issued": issuance.date_issued,
+                "return_date": issuance.return_date,
+                "rating": feedback.rating if feedback else None,
+                "feedback": feedback.feedback if feedback else None,
+            }
+            user_report["issuances"].append(book_info)
+
+        report_data.append(user_report)
+
+    # Generate report for admin
+    msg = get_report("templates/admin_monthly_report.html", report_data, admin.name)
+    send_mail(
+        admin.email,
+        subject="Admin Monthly Activity Report",
+        message=msg,
+        content="html",
+    )
+
+    return "Monthly Report Sent to Admin."
+
+
+# -----------------------------Crontab--------------------------------------#
 
 
 @celery_app.on_after_configure.connect
 def setup_periodic_tasks(sender, **kwargs):
-    # Calls deadlineReminder.s() daily.
+    # Calls daily_reminder.s() daily.
     sender.add_periodic_task(10, daily_reminder.s(), name="DailyReminder")
+
+    # Daily reminder every day at 8:09 PM.
     sender.add_periodic_task(
         crontab(minute=9, hour=20, day_of_month="*"),
         daily_reminder.s(),
-        name="Daily reminder everyday @6PM via mail.",
+        name="Daily reminder everyday @8:09 PM via mail.",
+    )
+
+    # For demonstration: Run the monthly report every minute.
+    sender.add_periodic_task(
+        crontab(minute="*"),
+        monthly_report.s(),
+        name="Monthly Report every minute for demonstration",
     )

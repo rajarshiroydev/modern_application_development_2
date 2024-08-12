@@ -1,0 +1,27 @@
+<html>
+
+<head>
+    <title>Monthly Report</title>
+</head>
+
+<body>
+    <h1>Monthly Report for {{ name }}</h1>
+    {% for user in book_info %}
+    <h2>User: {{ user.name }} ({{ user.email }})</h2>
+    <ul>
+        {% for book in user.issuances %}
+        <li>
+            <strong>{{ book.book_name }}</strong><br>
+            Section: {{ book.section_name }}<br>
+            Author: {{ book.author }}<br>
+            Issued Date: {{ book.date_issued }}<br>
+            Return Date: {{ book.return_date }}<br>
+            Rating: {{ book.rating }}<br>
+            Feedback: {{ book.feedback }}<br>
+        </li>
+        {% endfor %}
+    </ul>
+    {% endfor %}
+</body>
+
+</html>
