@@ -96,7 +96,6 @@ const routes = [
   {
     path: "/user_feedbacks",
     component: UserFeedbacks,
-    // meta: { requiresAuth: true, role: ["admin", "user"] },
   },
   {
     path: "/profile",

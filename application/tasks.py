@@ -16,13 +16,13 @@ def daily_reminder():
     today = datetime.today().date()
     for user in users:
         if user and user.role != "admin":
-            # if user.last_login < datetime.today().date():
-            reciver_mail = user.email
-            send_mail(
-                reciver_mail,
-                subject="Daily User Reminder",
-                message="Hey! Checkout newly released Book on BookHouse.",
-            )
+            if user.last_login <= datetime.today().date():
+                reciver_mail = user.email
+                send_mail(
+                    reciver_mail,
+                    subject="Daily User Reminder",
+                    message=f"Dear {user.name} \n Checkout newly released Book on BookHouse.",
+                )
 
             issued = Issued.query.filter_by(user_id=user.id).all()
             for book in issued:
@@ -30,7 +30,7 @@ def daily_reminder():
                     send_mail(
                         reciver_mail,
                         subject="Book Return Reminder",
-                        message=f"Reminder: The book '{book.book_name}' is due on {book.return_date}. Please return it on time to avoid any late fees.",
+                        message=f"Dear {user.name} \n Reminder: The book '{book.book_name}' is due on {book.return_date}. Please return it on time to avoid any late fees.",
                     )
     return "Daily reminder done!"
 
@@ -152,25 +152,22 @@ def monthly_report():
 
 @celery_app.on_after_configure.connect
 def setup_periodic_tasks(sender, **kwargs):
-    # Calls daily_reminder.s() daily.
-    sender.add_periodic_task(10, daily_reminder.s(), name="DailyReminder")
-
-    # Daily reminder every day at 8:09 PM.
-    sender.add_periodic_task(
-        crontab(minute=9, hour=20, day_of_month="*"),
-        daily_reminder.s(),
-        name="Daily reminder everyday @8:09 PM via mail.",
-    )
-
-    # For demonstration: Run the monthly report every minute.
-    # sender.add_periodic_task(
-    #     crontab(minute="*"),
-    #     monthly_report.s(),
-    #     name="Monthly Report every minute for demonstration",
-    # )
+    sender.add_periodic_task(60, daily_reminder.s(), name="DailyReminder")
 
     sender.add_periodic_task(
-        10,
+        60,
         monthly_report.s(),
         name="Monthly Report every minute for demonstration",
+    )
+
+    sender.add_periodic_task(
+        crontab(minute=0, hour=18, day_of_month="*"),
+        daily_reminder.s(),
+        name="DailyReminder",
+    )
+
+    sender.add_periodic_task(
+        crontab(minute=0, hour=18, day_of_month=1, month_of_year=8),
+        monthly_report.s(),
+        name="MonthlyReport",
     )

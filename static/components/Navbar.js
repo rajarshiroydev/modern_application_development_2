@@ -19,11 +19,15 @@ export default {
       <router-link to="/userhome" style="font-size: 20px; color: black; margin-right: 20px;">User Home</router-link>
       <router-link to="/profile" style="font-size: 20px; color: black; margin-right: 20px;">Profile</router-link>
       <router-link to="/issued_books_user" style="font-size: 20px; color: black; margin-right: 20px;">Library</router-link>
-      <button @click="trigger_export" class="btn btn-primary" style="font-size: 20px; margin-right: 20px;">Export My Data</button>
     </template>
 
     <!-- Logout link -->
     <a href="#" @click.prevent="logout" v-if="isLoggedIn" style="font-size: 20px; color: black;">Logout</a>
+
+    <template v-if="isUser">
+      <button @click="trigger_export" class="btn btn-primary" style="font-size: 20px; margin-left: 20px;">Export My Data</button>
+    </template>
+
   </nav>
   `,
   data() {

@@ -11,6 +11,7 @@ export default {
     <div style="display: flex; flex-wrap: wrap; justify-content: flex-start;">
       <div v-for="feedback in feedbacks" :key="feedback.id" style="width: 18rem; margin-right: 20px; margin-bottom: 20px; padding: 10px; border: 1px solid #dee2e6; border-radius: 10px; background-color: #f8f9fa;">
         <div style="margin: 10px;">
+          <div><strong>Bookname:</strong> {{ feedback.book_name }}</div>
           <div><strong>Username:</strong> {{ feedback.username }}</div>
           <div><strong>Date:</strong> {{ formatDate(feedback.date_of_feedback) }}</div>
           <div><strong>Feedback:</strong> {{ feedback.feedback }}</div>

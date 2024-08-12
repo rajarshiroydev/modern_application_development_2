@@ -31,7 +31,6 @@ def auth_required(func):
     @wraps(func)
     @jwt_required()
     def wrapper(*args, **kwargs):
-        # You have to pass identity to get_jwt_identity and check it
         identity = get_jwt_identity()
         if identity:
             return func(*args, **kwargs)
@@ -217,7 +216,7 @@ def register():
         name=name,
         role="user",
         email=email,
-        last_login=datetime.utcnow(),
+        last_login=datetime.today().date(),
     )
     db.session.add(new_user)
     db.session.commit()
@@ -236,6 +235,9 @@ def login():
 
     if not check_password_hash(user.passhash, password):
         return jsonify({"message": "Incorrect password"}), 401
+
+    user.last_login = datetime.today().date()
+    db.session.commit()
 
     access_token = create_access_token(
         identity={"user_id": user.id, "username": user.username, "role": user.role}
