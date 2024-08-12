@@ -152,18 +152,18 @@ def monthly_report():
 
 @celery_app.on_after_configure.connect
 def setup_periodic_tasks(sender, **kwargs):
-    sender.add_periodic_task(60, daily_reminder.s(), name="DailyReminder")
-
-    sender.add_periodic_task(
-        60,
-        monthly_report.s(),
-        name="Monthly Report every minute for demonstration",
-    )
+    sender.add_periodic_task(10, daily_reminder.s(), name="Daily Reminder every minute for demonstration")
 
     sender.add_periodic_task(
         crontab(minute=0, hour=18, day_of_month="*"),
         daily_reminder.s(),
         name="DailyReminder",
+    )
+
+    sender.add_periodic_task(
+        10,
+        monthly_report.s(),
+        name="Monthly Report every minute for demonstration",
     )
 
     sender.add_periodic_task(
