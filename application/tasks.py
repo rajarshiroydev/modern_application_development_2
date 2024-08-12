@@ -6,6 +6,7 @@ from celery.schedules import crontab
 from app import celery_app
 from jinja2 import Template
 import csv
+import os
 # -----------------------Daily reminder for login and nearing return date------------------#
 
 
@@ -44,36 +45,30 @@ def get_report(template, issued_list, name):
         return html_report
 
 
-@celery_app.task
-def user_report():
-    users = User.query.all()
-    for user in users:
-        name = user.name
-        mail = user.email
+@shared_task
+def export_user_data(user_id):
+    user = User.query.get(user_id)
+    if not user:
+        return "User not found."
 
-        issued = Issued.query.filter_by(user_id=user.id).all()
-        issued_list = []
-        for issue in issued:
-            book_details = []
-            book_details.append(issue.books.name)
-            book_details.append(issue.books.section.name)
-            book_details.append(issue.books.author)
-            book_details.append(issue.date_issued.strftime("%Y-%m-%d"))
-            book_details.append(issue.return_date.strftime("%Y-%m-%d"))
-            issued_list.append(book_details)
+    issued = Issued.query.filter_by(user_id=user.id).all()
+    issued_list = []
+    for issue in issued:
+        book_details = [
+            issue.books.name,
+            issue.books.section.name,
+            issue.books.author,
+            issue.date_issued.strftime("%Y-%m-%d"),
+            issue.return_date.strftime("%Y-%m-%d"),
+        ]
+        issued_list.append(book_details)
 
-        msg = get_report("templates/user_report.html", issued_list, name)
-        send_mail(mail, subject="Monthly Activity Report", message=msg, content="html")
-    return "Monthly Report Sent."
-
-
-@celery_app.task()
-def export_data(user_name, user_email, issued_list):
+    # Export data as CSV
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    file_name = f"{user_name}_book_details_{timestamp}.csv"
+    file_name = f"{user.username}_book_details_{timestamp}.csv"
 
     # Fields for the CSV file
-    book_fields = ["Book", "Section", "Author", "Date Issued", "Date Returned"]
+    book_fields = ["Book", "Section", "Author", "Date Issued", "Return Date"]
 
     # Create and write the CSV file
     with open(file_name, "w", newline="", encoding="utf8") as csvf:
@@ -83,12 +78,16 @@ def export_data(user_name, user_email, issued_list):
 
     # Send the CSV file as an attachment
     send_mail(
-        receiver=user_email,
+        receiver=user.email,
         subject="Your Book Details Export",
-        message=f"Dear {user_name},\n\nPlease find attached the export of your book details. Thank you!",
+        message=f"Dear {user.name},\n\nPlease find attached the export of your book details. Thank you!",
         attachment=file_name,
     )
-    return "CSV file exported and email sent!"
+
+    # Clean up: remove the file after sending
+    os.remove(file_name)
+
+    return f"CSV file exported and email sent for {user.name}!"
 
 
 # -----------------------------User export for issue details--------------------------------------#

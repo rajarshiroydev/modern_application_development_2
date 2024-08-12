@@ -17,24 +17,31 @@ def send_mail(receiver, subject, message, content="text", attachment=None):
     msg["To"] = receiver
     msg["Subject"] = subject
 
+    # Attach the message body
     if content == "html":
         msg.attach(MIMEText(message, "html"))
     else:
         msg.attach(MIMEText(message, "plain"))
 
+    # Handle the attachment
     if attachment:
-        with open(attachment, "rb") as attachment_:
+        with open(attachment, "rb") as attachment_file:
             part = MIMEBase("application", "octet-stream")
-            part.set_payload(attachment_.read())
+            part.set_payload(attachment_file.read())
 
+        encoders.encode_base64(part)
         part.add_header(
             "Content-Disposition",
             f'attachment; filename="{os.path.basename(attachment)}"',
         )
 
-        encoders.encode_base64(part)
+        # Explicitly set the MIME type for CSV
+        if attachment.lower().endswith(".csv"):
+            part.add_header("Content-Type", "text/csv; charset=utf-8")
+
         msg.attach(part)
 
+    # Send the email
     server = smtplib.SMTP(host=SMTP_SERVER_HOST, port=SMTP_SERVER_PORT)
     server.login(SENDER_ADDRESS, SENDER_PASSWORD)
     server.send_message(msg)

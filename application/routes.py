@@ -17,7 +17,7 @@ from flask_jwt_extended import (
 from application.models import db, Section, User, Books, Request, Issued, Feedbacks
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_caching import Cache
-from application.tasks import export_data
+from application.tasks import export_user_data
 
 
 jwt = JWTManager()
@@ -804,33 +804,16 @@ def rate_book(book_id):
 
 
 @app.route("/trigger_export", methods=["POST"])
-@auth_required  # Assuming you're using JWT-based authentication
+@auth_required
 def trigger_export():
     identity = get_jwt_identity()
     user_id = identity["user_id"]
 
-    # Fetch the user object
-    user = User.query.get(user_id)
-    if not user:
-        return jsonify({"message": "User not found."}), 404
-
-    # Generate the issued_list
-    issued_list = [
-        [
-            issue.books.name,
-            issue.books.section.name,
-            issue.books.author,
-            issue.date_issued.strftime("%Y-%m-%d"),
-            issue.return_date.strftime("%Y-%m-%d"),
-        ]
-        for issue in Issued.query.filter_by(user_id=user_id).all()
-    ]
-
-    # Trigger the export task asynchronously
-    export_data.delay(user.username, user.email, issued_list)
+    # Trigger the export task asynchronously for this specific user
+    export_user_data.delay(user_id)
 
     return jsonify(
         {
-            "message": "Your export job has been started. You will receive an email shortly."
+            "message": "Your export job has been started. You will receive an email shortly with your book details export."
         }
     ), 200
