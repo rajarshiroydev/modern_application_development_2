@@ -45,7 +45,7 @@ def get_report(template, issued_list, name):
         return html_report
 
 
-@shared_task
+@celery_app.task(ignore_result=False)
 def export_user_data(user_id):
     user = User.query.get(user_id)
     if not user:
@@ -87,7 +87,14 @@ def export_user_data(user_id):
     # Clean up: remove the file after sending
     os.remove(file_name)
 
-    return f"CSV file exported and email sent for {user.name}!"
+    # Send completion notification email
+    send_mail(
+        receiver=user.email,
+        subject="Book Details Export Completed",
+        message=f"Dear {user.name},\n\nYour book details export has been completed and sent to your email. Please check your inbox for the file.\n\nThank you for using our service!",
+    )
+
+    return f"CSV file exported and emails sent for {user.name}!"
 
 
 # -----------------------------User export for issue details--------------------------------------#
