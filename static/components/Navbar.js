@@ -19,6 +19,7 @@ export default {
       <router-link to="/userhome" style="font-size: 20px; color: black; margin-right: 20px;">User Home</router-link>
       <router-link to="/profile" style="font-size: 20px; color: black; margin-right: 20px;">Profile</router-link>
       <router-link to="/issued_books_user" style="font-size: 20px; color: black; margin-right: 20px;">Library</router-link>
+      <button @click="trigger_export" class="btn btn-primary" style="font-size: 20px; margin-right: 20px;">Export My Data</button>
     </template>
 
     <!-- Logout link -->
@@ -67,19 +68,41 @@ export default {
         console.error("Error during logout:", error);
       }
     },
-  },
-  watch: {
-    // Watch for changes in session storage
-    accessToken(newValue) {
-      this.role = newValue ? sessionStorage.getItem("role") : null;
+    async trigger_export() {
+      try {
+        const url = `${window.location.origin}/trigger_export`;
+        const response = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${this.accessToken}`,
+          },
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          alert(data.message);
+        } else {
+          alert(data.message);
+        }
+      } catch (error) {
+        alert("An error occurred:", error);
+        this.$router.push("/userhome");
+      }
     },
-    role() {
-      // Force re-rendering to update navbar
-      this.$forceUpdate();
+    watch: {
+      // Watch for changes in session storage
+      accessToken(newValue) {
+        this.role = newValue ? sessionStorage.getItem("role") : null;
+      },
+      role() {
+        // Force re-rendering to update navbar
+        this.$forceUpdate();
+      },
     },
-  },
-  created() {
-    // Initialize role on creation
-    this.role = sessionStorage.getItem("role");
+    created() {
+      // Initialize role on creation
+      this.role = sessionStorage.getItem("role");
+    },
   },
 };
