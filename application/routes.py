@@ -212,7 +212,12 @@ def register():
 
     password_hash = generate_password_hash(password)
     new_user = User(
-        username=username, passhash=password_hash, name=name, role="user", email=email
+        username=username,
+        passhash=password_hash,
+        name=name,
+        role="user",
+        email=email,
+        last_login=datetime.utcnow(),
     )
     db.session.add(new_user)
     db.session.commit()

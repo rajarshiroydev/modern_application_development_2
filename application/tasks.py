@@ -163,8 +163,14 @@ def setup_periodic_tasks(sender, **kwargs):
     )
 
     # For demonstration: Run the monthly report every minute.
+    # sender.add_periodic_task(
+    #     crontab(minute="*"),
+    #     monthly_report.s(),
+    #     name="Monthly Report every minute for demonstration",
+    # )
+
     sender.add_periodic_task(
-        crontab(minute="*"),
+        10,
         monthly_report.s(),
         name="Monthly Report every minute for demonstration",
     )

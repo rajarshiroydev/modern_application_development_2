@@ -1,4 +1,5 @@
 from app import app
+from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash
 
@@ -12,6 +13,7 @@ class User(db.Model):
     passhash = db.Column(db.String(256), nullable=False)
     role = db.Column(db.String(64), nullable=False)
     email = db.Column(db.String(64), nullable=False)
+    last_login = db.Column(db.Date, nullable=False)
 
 
 class Section(db.Model):
@@ -54,8 +56,6 @@ class Issued(db.Model):
     return_date = db.Column(db.Date, nullable=False)
 
 
-# keeping the data of feedbacks separately because the
-# feedbacks would remain even if the books are deleted
 class Feedbacks(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
@@ -70,7 +70,7 @@ class Feedbacks(db.Model):
 
 with app.app_context():
     db.create_all()
-    # if an admin does not exist
+    # admin is created automatically
     admin = User.query.filter_by(role="admin").first()
     if not admin:
         password_hash = generate_password_hash("admin")
@@ -80,6 +80,7 @@ with app.app_context():
             passhash=password_hash,
             role="admin",
             email="admin@email.com",
+            last_login=datetime.utcnow(),
         )
     db.session.add(admin)
     db.session.commit()
